@@ -1,5 +1,7 @@
 <?php
 
+//testing commit versions
+
 function signup_perm() {
   return array('administer signup messages');
 }
