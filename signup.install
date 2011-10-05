@@ -1,0 +1,99 @@
+<?php
+
+/**
+ * Implementation of hook_schema().
+ */
+function signup_schema() {
+	$schema['signup'] = array(
+		'fields' => array(
+			'sid' => array(
+				'description' => 'The primary identifier for a signup.',
+				'type' => 'serial',
+				'unsigned' => TRUE,
+				'not null' => TRUE
+			),
+			'first_name' => array(
+				'type' => 'varchar',
+				'length' => 60,
+				'not null' => TRUE,
+				'default' => '',
+				'description' => 'First name.',
+			),
+			'last_name' => array(
+				'type' => 'varchar',
+				'length' => 60,
+				'not null' => TRUE,
+				'default' => '',
+				'description' => 'Last name.',
+			),
+			'mail' => array(
+	        	'type' => 'varchar',
+				'length' => 64,
+				'not null' => FALSE,
+				'default' => '',
+				'description' => "User's email address.",
+			),
+			'phone' => array(
+				'type' => 'varchar',
+				'length' => 60,
+				'not null' => TRUE,
+				'default' => '',
+				'description' => 'Phone Number.',
+			),
+			'address_1' => array(
+				'type' => 'varchar',
+				'length' => 60,
+				'not null' => TRUE,
+				'default' => '',
+				'description' => 'Address 1.',
+			),
+			'address_2' => array(
+				'type' => 'varchar',
+				'length' => 60,
+				'not null' => TRUE,
+				'default' => '',
+				'description' => 'Address 2.',
+			),
+			'city' => array(
+				'type' => 'varchar',
+				'length' => 60,
+				'not null' => TRUE,
+				'default' => '',
+				'description' => 'City.',
+			),
+			'state' => array(
+				'type' => 'varchar',
+				'length' => 60,
+				'not null' => TRUE,
+				'default' => '',
+				'description' => 'State.',
+			),
+			'zip_code' => array(
+				'type' => 'varchar',
+				'length' => 60,
+				'not null' => TRUE,
+				'default' => '',
+				'description' => 'Zip Code.',
+			),
+		),
+		'unique keys' => array(
+			'mail' => array('mail'),
+		),
+		'primary key' => array('sid'),
+	);
+	return $schema;
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function signup_install() {
+	drupal_install_schema('signup');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function signup_uninstall() {
+	drupal_uninstall_schema('signup');
+}

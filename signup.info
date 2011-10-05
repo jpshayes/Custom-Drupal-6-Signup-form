@@ -1,0 +1,4 @@
+name = Hayes Sign up
+description = Creates Sign up form in a block to collect name / email
+package = Hayes
+core = 6.x
