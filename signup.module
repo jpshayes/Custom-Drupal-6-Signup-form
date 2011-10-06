@@ -54,7 +54,8 @@ function signup_data_block($form_state) {
 		'#value' => 'Sign Up'
 	);
 	$form['#redirect'] = 'signup/form';
-	//at this point I would like the email value to carry over to the signup_data_form. See http://drupal.org/node/247585 or http://drupal.org/node/265755
+	
+	// At this point I would like the email value to carry over to the signup_data_form. See http://drupal.org/node/247585 or http://drupal.org/node/265755
 	return $form;
 }
 
