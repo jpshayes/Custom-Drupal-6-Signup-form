@@ -23,7 +23,7 @@ function signup_menu() {
  	return $items;
 }
 
-//get the sign up form on the menu callback from item signup/form
+//get the sign up form on the menu callback from $items['signup/form'] in hook_menu()
 function signup_form() {
 	return drupal_get_form('signup_data_form');
 }
