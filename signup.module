@@ -62,7 +62,7 @@ function signup_data_block($form_state) {
 // Validate block form
 function signup_data_block_validate($form, &$form_state) {
 	$mail = $form_state['values']['email'];
-	if (!valid_email_address($mail)) {
+	if (!signup_valid_email_address($mail)) {
 		form_set_error('mail', t('The e-mail address ' . $mail . ' is not a valid email address.'));
 	}
 	else if (db_result(db_query("SELECT COUNT(*) FROM {signup} WHERE LOWER(mail) = LOWER('%s')", $mail)) > 0) {
