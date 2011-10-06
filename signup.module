@@ -198,6 +198,7 @@ function signup_data_form($form_state) {
 	
 	// Add additional validation using javaScript
 	drupal_add_js(drupal_get_path('module','signup') . '/jquery.validate.min.js');
+	drupal_add_js(drupal_get_path('module','signup') . '/jquery.cookie.js');
 	drupal_add_js(drupal_get_path('module','signup') . '/signup.form.js');
 	return $form;
 }
@@ -266,6 +267,7 @@ function signup_block($op = 'list', $delta = '', $edit = array()) {
 				case 'signup':
 				//add a little extra validation using javaScript
 				drupal_add_js(drupal_get_path('module','signup') . '/jquery.validate.min.js');
+				drupal_add_js(drupal_get_path('module','signup') . '/jquery.cookie.js');
 				drupal_add_js(drupal_get_path('module','signup') . '/signup.form.js');
 					$block['subject'] = t('eNews Sign up');
 					$block['content'] = drupal_get_form('signup_data_block');
