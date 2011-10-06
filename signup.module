@@ -1,9 +1,17 @@
 <?php
 
+/**
+* Implementation of hook_perm().
+* See http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_perm/6
+*/
 function signup_perm() {
   return array('administer signup messages');
 }
 
+/**
+* Implementation of hook_menu().
+* See http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_menu/6
+*/
 function signup_menu() {
 	$items = array();
 	$items['signup/form'] = array(
@@ -23,17 +31,17 @@ function signup_menu() {
  	return $items;
 }
 
-//get the sign up form on the menu callback from $items['signup/form'] in hook_menu()
+// Callback for $items['signup/form'] in hook_menu()
 function signup_form() {
 	return drupal_get_form('signup_data_form');
 }
 
-//get the sign up form on the menu callback from item signup/form
+// Callback for $items['admin/settings/signup-messages'] in hook_menu()
 function signup_form_messages() {
 	return drupal_get_form('signup_data_form_messages');
 }
 
-//create sign up block form used in hook_block()
+// Create sign up block form used in hook_block()
 function signup_data_block($form_state) {
 	$form['email'] = array(
 		'#type' => 'textfield',
@@ -50,7 +58,7 @@ function signup_data_block($form_state) {
 	return $form;
 }
 
-//validate block form
+// Validate block form
 function signup_data_block_validate($form, &$form_state) {
 	$mail = $form_state['values']['email'];
 	if (!valid_email_address($mail)) {
@@ -61,7 +69,7 @@ function signup_data_block_validate($form, &$form_state) {
 	}
 }
 
-//submit block form
+// Submit block form
 function signup_data_block_submit($form, &$form_state) {
 	$email = $form_state['values']['email'];
 	db_query("INSERT INTO {signup} (mail) VALUES('%s')",$email);
@@ -186,13 +194,13 @@ function signup_data_form($form_state) {
 		'#type' => 'submit',
 		'#value' => 'Sign Up',
 	);
-	//add a little extra validation using javaScript
+	// Add additional validation using javaScript
 	drupal_add_js(drupal_get_path('module','signup') . '/jquery.validate.min.js');
 	drupal_add_js(drupal_get_path('module','signup') . '/signup.form.js');
 	return $form;
 }
 
-//validate sign up page form
+// Validate sign up page form
 function signup_data_form_validate($form, &$form_state) {
 	$mail = $form_state['values']['email'];
 	if (!valid_email_address($mail)) {
@@ -218,7 +226,7 @@ function signup_data_form_validate($form, &$form_state) {
 	}	
 }
 
-//submit sign up page form
+// Submit sign up page form
 function signup_data_form_submit($form, &$form_state) {
 	$fname = $form_state['values']['first'];
 	$lname = $form_state['values']['last'];
@@ -238,7 +246,11 @@ function signup_data_form_submit($form, &$form_state) {
 	}
 }
 
-//create block with sign up block form as its contents
+/**
+* Implementation of hook_block().
+* Create block with sign up block form as its contents
+* See http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
+*/
 function signup_block($op = 'list', $delta = '', $edit = array()) {
 	// The $op parameter determines what piece of information is being requested.
 	switch ($op) {
@@ -261,7 +273,7 @@ function signup_block($op = 'list', $delta = '', $edit = array()) {
 	}
 }
 
-//create sign up page messages form
+// Create sign up page messages form
 function signup_data_form_messages($form_state) {
 	$form['update'] = array(
 		'#type' => 'textfield',
@@ -309,6 +321,7 @@ function signup_data_form_messages($form_state) {
 	return $form;
 }
 
+// Submit sign up page messages form
 function signup_data_form_messages_submit($form, &$form_state) {
 	$intro = $form_state['values']['intro'];
 	$phone_invalid = $form_state['values']['phone_invalid'];
