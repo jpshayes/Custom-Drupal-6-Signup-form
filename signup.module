@@ -78,7 +78,7 @@ function signup_data_block_submit($form, &$form_state) {
 }
 
 
-//create sign up page form
+// Create sign up page form
 function signup_data_form($form_state) {
 	$form['intro'] = array(
 		'#type' => 'markup',
@@ -208,19 +208,19 @@ function signup_data_form_validate($form, &$form_state) {
 		form_set_error('email', t('The email address ' . $mail . ' is not a valid email address.'));
 	}
 	
-	//validate the phone number provided is at least 5 digits
+	// Validate the phone number provided is at least 5 digits
 	$phone = $form_state['values']['phone'];
 	if( !preg_match("^\+?\d{4,}$^", $phone) ) {
 		form_set_error('phone', (variable_get('sign_up_phone_invalid', 'Please enter a valid Phone Number.')));
 	}
 	
-	//validate the zip code provided is at least 5 digits
+	// Validate the zip code provided is at least 5 digits
 	$zip_code = $form_state['values']['zip_code'];
 	if( !preg_match("^\+?\d{5,}$^", $zip_code) ) {
 		form_set_error('zip_code', (variable_get('sign_up_zip_invalid', 'Please enter a valid Zip Code.')));
 	}
 	
-	//validate the user selected a state
+	// Validate the user selected a state
 	$state = $form_state['values']['state'];
 	if( $state == 'SEL') {
 		form_set_error('state', (variable_get('sign_up_state_invalid', 'Please select a state.')));
