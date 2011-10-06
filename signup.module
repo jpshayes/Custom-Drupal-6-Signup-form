@@ -79,7 +79,7 @@ function signup_data_block_submit($form, &$form_state) {
 	db_query("INSERT INTO {signup} (mail) VALUES('%s')",$email);
 
 	// MEI: this is SOOOO handy
-	$sid = mysql_insert_id();
+	$sid = db_last_insert_id( 'signup', 'sid' );
 	drupal_set_message(t('Thank you for signing up.'));
 	drupal_goto("signup/form/$sid");
 }
