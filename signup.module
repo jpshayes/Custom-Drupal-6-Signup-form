@@ -1,17 +1,9 @@
 <?php
 
-/**
-* Implementation of hook_perm().
-* See http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_perm/6
-*/
 function signup_perm() {
-	return array('administer signup messages');
+  return array('administer signup messages');
 }
 
-/**
-* Implementation of hook_menu().
-* See http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_menu/6
-*/
 function signup_menu() {
 	$items = array();
 	$items['signup/form'] = array(
@@ -31,58 +23,86 @@ function signup_menu() {
  	return $items;
 }
 
-// Callback for $items['signup/form'] in hook_menu()
+//get the sign up form on the menu callback from item signup/form
 function signup_form() {
 	return drupal_get_form('signup_data_form');
 }
 
-// Callback for $items['admin/settings/signup-messages'] in hook_menu()
+//get the sign up form on the menu callback from item signup/form
 function signup_form_messages() {
 	return drupal_get_form('signup_data_form_messages');
 }
 
-// Create sign up block form used in hook_block()
+//create sign up block form used in hook_block()
 function signup_data_block($form_state) {
 	$form['email'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Email'),
 		'#size' => 40,
 		'#required' => TRUE,
-	);	
+	);
 	$form['submit'] = array(
 		'#type' => 'submit',
 		'#value' => 'Sign Up'
 	);
-	$form['#redirect'] = 'signup/form';
-	
-	// At this point I would like the email value to carry over to the signup_data_form. See http://drupal.org/node/247585 or http://drupal.org/node/265755
+//	$form['#redirect'] = 'signup/form';
+	//at this point I would like the email value to carry over to the signup_data_form. See http://drupal.org/node/247585 or http://drupal.org/node/265755
 	return $form;
 }
 
-// Validate block form
+//validate block form
 function signup_data_block_validate($form, &$form_state) {
 	$mail = $form_state['values']['email'];
-	if (!signup_valid_email_address($mail)) {
+    if (!valid_email_address($mail)) {
 		form_set_error('mail', t('The e-mail address ' . $mail . ' is not a valid email address.'));
 	}
+
+	// MEI SUGGESTION: get the SID and another field of the record that matches the email.
+	// Check if hte other field, for example 'first_name' is filled out.
+	// If it is, the user completed the form the first time.  We already have this one
+	// If it is not, the user left hte form without completing it.  Go there again so they can complete it now.
+	// Something like (untested):
+	// else {
+	//     $row = db_result( db_query( "SELECT sid, first_name FROM {signup} WHERE LOWER(mail) = LOWER('%s') ) );
+	//       if( strlen( $result['first_name'] ) > 0 )
+	//           // "We've already got it" error
+	//       else drupal_goto( 'signup/form/'.$result['sid'] );
+
 	else if (db_result(db_query("SELECT COUNT(*) FROM {signup} WHERE LOWER(mail) = LOWER('%s')", $mail)) > 0) {
 		form_set_error('mail', t('The e-mail address ' . $mail . ' is already in our Database.'));
-	}
+ 	}
 }
 
-// Submit block form
+//submit block form
 function signup_data_block_submit($form, &$form_state) {
 	$email = $form_state['values']['email'];
 	db_query("INSERT INTO {signup} (mail) VALUES('%s')",$email);
-	drupal_set_message(variable_get('sign_up_update', 'Please provide additional information.'));
+
+	// MEI: this is SOOOO handy
+	$sid = mysql_insert_id();
+	drupal_set_message(t('Thank you for signing up.'));
+	drupal_goto("signup/form/$sid");
 }
 
 
-// Create sign up page form
+//create sign up page form
 function signup_data_form($form_state) {
-	$form['intro'] = array(
+
+    // MEI GET SID FROM THE URL
+    $sid = arg(2) ? arg(2) : 0;
+//    drupal_set_message( "signup_data_form $sid ");
+
+    $mail = db_result( db_query( "SELECT `mail` from {signup} where `sid` = %d", $sid ) );
+    if( !$mail) $mail = '';
+
+    // MEI SAVE SID IN HIDDEN FIELD
+    $form['sid'] = array(
+        '#type' => 'hidden',
+        '#value' => $sid,
+    );
+  	$form['intro'] = array(
 		'#type' => 'markup',
-		'#value' => variable_get('sign_up_intro', 'You need to ' . l('configure this message', 'admin/settings/signup-messages', $options = array()))
+		'#value' => variable_get('sign_up_intro', l('Configure this message', 'admin/settings/signup-messages', $options = array()))
 	);
 	$form['first'] = array(
 		'#type' => 'textfield',
@@ -100,6 +120,7 @@ function signup_data_form($form_state) {
 		'#type' => 'textfield',
 		'#title' => t('Email'),
 		'#size' => 30,
+		'#default_value' => $mail,
 		'#required' => TRUE,
 	);
 	$form['phone'] = array(
@@ -195,41 +216,43 @@ function signup_data_form($form_state) {
 		'#type' => 'submit',
 		'#value' => 'Sign Up',
 	);
-	
-	// Add additional validation using javaScript
+	//add a little extra validation using javaScript
 	drupal_add_js(drupal_get_path('module','signup') . '/jquery.validate.min.js');
 	drupal_add_js(drupal_get_path('module','signup') . '/signup.form.js');
 	return $form;
 }
 
-// Validate sign up page form
+//validate sign up page form
 function signup_data_form_validate($form, &$form_state) {
 	$mail = $form_state['values']['email'];
-	if (!signup_valid_email_address($mail)) {
+	if (!valid_email_address($mail)) {
 		form_set_error('email', t('The email address ' . $mail . ' is not a valid email address.'));
 	}
-	
-	// Validate the phone number provided is at least 5 digits
+
+	//validate the phone number provided is at least 5 digits
 	$phone = $form_state['values']['phone'];
 	if( !preg_match("^\+?\d{4,}$^", $phone) ) {
 		form_set_error('phone', (variable_get('sign_up_phone_invalid', 'Please enter a valid Phone Number.')));
 	}
-	
-	// Validate the zip code provided is at least 5 digits
+
+	//validate the zip code provided is at least 5 digits
 	$zip_code = $form_state['values']['zip_code'];
 	if( !preg_match("^\+?\d{5,}$^", $zip_code) ) {
 		form_set_error('zip_code', (variable_get('sign_up_zip_invalid', 'Please enter a valid Zip Code.')));
 	}
-	
-	// Validate the user selected a state
+
+	//validate the user selected a state
 	$state = $form_state['values']['state'];
 	if( $state == 'SEL') {
 		form_set_error('state', (variable_get('sign_up_state_invalid', 'Please select a state.')));
-	}	
+	}
 }
 
-// Submit sign up page form
+//submit sign up page form
 function signup_data_form_submit($form, &$form_state) {
+
+    // MEI GET SID
+    $sid = $form_state['values']['sid'];
 	$fname = $form_state['values']['first'];
 	$lname = $form_state['values']['last'];
 	$email = $form_state['values']['email'];
@@ -239,20 +262,28 @@ function signup_data_form_submit($form, &$form_state) {
 	$city = $form_state['values']['city'];
 	$state = $form_state['values']['state'];
 	$zip_code = $form_state['values']['zip_code'];
+
+	// MEI SUGGESTION: here, if came in with a SID from the BLOCK, save the record that matches the SID,
+	// and save the email in case they changed it. (I haven't tested the following code:)
+
+	// if( $sid > 0 ) {
+    // $result = db_query("UPDATE {signup} SET first_name = '%s', last_name = '%s', phone = '%s', mail = '%s',
+    // address_1 = '%s', address_2 = '%s', city = '%s', state = '%s', zip_code = '%s' WHERE sid = %d",
+    // $fname, $lname, $phone, $email, $address_1, $address_2, $city, $state, $zip_code, $email);
+    // } else {
+    // .. do the insert
+    // }
+
+    // NOTE your UPDATE will work better with "WHERE mail = '%s'" :)
 	if (db_result(db_query("SELECT COUNT(*) FROM {signup} WHERE LOWER(mail) = LOWER('%s')", $email)) > 0) {
 		db_query("UPDATE {signup} SET first_name = '%s', last_name = '%s', phone = '%s', address_1 = '%s', address_2 = '%s', city = '%s', state = '%s', zip_code = '%s' WHERE mail = %d", $fname, $lname, $phone, $address_1, $address_2, $city, $state, $zip_code, $email);
-		drupal_set_message(t('Thank you, information has been updated.'));
 	} else {
 		db_query("INSERT INTO {signup} (first_name, last_name, mail, phone, address_1, address_2, city, state, zip_code) VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", $fname, $lname, $email, $phone, $address_1, $address_2, $city, $state, $zip_code);
-		drupal_set_message(t('Thank you for signing up.'));
 	}
+	drupal_set_message(t('Thank you for signing up.'));
 }
 
-/**
-* Implementation of hook_block().
-* Create block with sign up block form as its contents
-* See http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
-*/
+//create block with sign up block form as its contents
 function signup_block($op = 'list', $delta = '', $edit = array()) {
 	// The $op parameter determines what piece of information is being requested.
 	switch ($op) {
@@ -269,52 +300,40 @@ function signup_block($op = 'list', $delta = '', $edit = array()) {
 				drupal_add_js(drupal_get_path('module','signup') . '/signup.form.js');
 					$block['subject'] = t('eNews Sign up');
 					$block['content'] = drupal_get_form('signup_data_block');
-				break;
+					break;
 			}
 		return $block;
 	}
 }
 
-// Create sign up page messages form
+//create sign up page messages form
 function signup_data_form_messages($form_state) {
-	$form['update'] = array(
-		'#type' => 'textfield',
-		'#title' => t('Update information'),
-		'#size' => 60,
-		'#required' => TRUE,
-		'#default_value' => variable_get('sign_up_update', 'Please provide additional information.'),
-		'#description' => t('This message will display at the top of the sign up form when the user is redirected from the form used to signup using only their email address.')
-	);
 	$form['intro'] = array(
 		'#type' => 'textarea',
-		'#title' => t('General introduction message'),
+		'#title' => t('Introduction message'),
 		'#required' => TRUE,
-		'#default_value' => variable_get('sign_up_intro', 'Add you introduction message.'),
-		'#description' => t('The introduction message at the top of the form.')
+		'#default_value' => variable_get('sign_up_intro', 'Add you introduction message.')
 	);
 	$form['phone_invalid'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Phone Number Invalid'),
 		'#size' => 60,
 		'#required' => TRUE,
-		'#default_value' => variable_get('sign_up_phone_invalid', 'Please enter a valid Phone Number.'),
-		'#description' => t('Error message displayed if the phone number has invalid characters or less than 4 numbers')
+		'#default_value' => variable_get('sign_up_phone_invalid', 'Please enter a valid Phone Number.')
 	);
 	$form['zip_code_invalid'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Zip Code Invalid'),
 		'#size' => 60,
 		'#required' => TRUE,
-		'#default_value' => variable_get('sign_up_zip_invalid', 'Please enter a valid Zip Code.'),
-		'#description' => t('Error message displayed if the zip code has invalid characters or less than 5 numbers')
+		'#default_value' => variable_get('sign_up_zip_invalid', 'Please enter a valid Zip Code.')
 	);
 	$form['state_invalid'] = array(
 		'#type' => 'textfield',
 		'#title' => t('State Empty'),
 		'#size' => 60,
 		'#required' => TRUE,
-		'#default_value' => variable_get('sign_up_state_invalid', 'Please select a state.'),
-		'#description' => t('Error message displayed if the state field is not set.')
+		'#default_value' => variable_get('sign_up_state_invalid', 'Please select a state.')
 	);
 	$form['submit'] = array(
 		'#type' => 'submit',
@@ -323,7 +342,6 @@ function signup_data_form_messages($form_state) {
 	return $form;
 }
 
-// Submit sign up page messages form
 function signup_data_form_messages_submit($form, &$form_state) {
 	$intro = $form_state['values']['intro'];
 	$phone_invalid = $form_state['values']['phone_invalid'];
@@ -335,14 +353,3 @@ function signup_data_form_messages_submit($form, &$form_state) {
 	variable_set('sign_up_state_invalid', $state_invalid);
 	drupal_set_message(t('Your changes have been saved.'));
 }
-
-// Validation functions
-function signup_valid_email_address($mail) {
-	$user = '[a-zA-Z0-9_\-\.\+\^!#\$%&*+\/\=\?\`\|\{\}~\']+';
-	$domain = '(?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.?)+';
-	$ipv4 = '[0-9]{1,3}(\.[0-9]{1,3}){3}';
-	$ipv6 = '[0-9a-fA-F]{1,4}(\:[0-9a-fA-F]{1,4}){7}';
-
-	return preg_match("/^$user@($domain|(\[($ipv4|$ipv6)\]))$/", $mail);
-}
- 
