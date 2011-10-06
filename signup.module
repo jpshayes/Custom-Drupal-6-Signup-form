@@ -82,7 +82,7 @@ function signup_data_block_submit($form, &$form_state) {
 function signup_data_form($form_state) {
 	$form['intro'] = array(
 		'#type' => 'markup',
-		'#value' => variable_get('sign_up_intro', 'You need to ' . l('configure this message', 'admin/settings/signup-messages', $options = array()))
+		'#value' => variable_get('sign_up_intro', l('Please configure this message', 'admin/settings/signup-messages', $options = array()))
 	);
 	$form['first'] = array(
 		'#type' => 'textfield',
