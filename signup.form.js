@@ -1,5 +1,12 @@
 $(document).ready(function(){
-	$('#signup-data-form, #signup-data-block').validate();
+	$('#signup-data-form, #signup-data-block').validate({
+		rules: {
+			email: {
+				required: true,
+				email: true
+			}
+		}
+	});
 	$('#signup-data-block .form-submit').click(function(){
 		var email = $('#edit-email').val()
 		$.cookie('signup', email, { expires: 7, path: '/' });
