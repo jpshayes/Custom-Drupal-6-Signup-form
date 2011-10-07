@@ -245,7 +245,7 @@ function signup_data_form_submit($form, &$form_state) {
 	$state = $form_state['values']['state'];
 	$zip_code = $form_state['values']['zip_code'];
 	if (db_result(db_query("SELECT COUNT(*) FROM {signup} WHERE LOWER(mail) = LOWER('%s')", $email)) > 0) {
-		db_query("UPDATE {signup} SET first_name = '%s', last_name = '%s', phone = '%s', address_1 = '%s', address_2 = '%s', city = '%s', state = '%s', zip_code = '%s' WHERE mail = %d", $fname, $lname, $phone, $address_1, $address_2, $city, $state, $zip_code, $email);
+		db_query("UPDATE {signup} SET first_name = '%s', last_name = '%s', phone = '%s', address_1 = '%s', address_2 = '%s', city = '%s', state = '%s', zip_code = '%s' WHERE mail = %s", $fname, $lname, $phone, $address_1, $address_2, $city, $state, $zip_code, $email);
 		drupal_set_message(t('Thank you, your information has been updated.'));
 	} else {
 		db_query("INSERT INTO {signup} (first_name, last_name, mail, phone, address_1, address_2, city, state, zip_code) VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", $fname, $lname, $email, $phone, $address_1, $address_2, $city, $state, $zip_code);
