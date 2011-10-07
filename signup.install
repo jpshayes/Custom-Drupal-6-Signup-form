@@ -27,7 +27,7 @@ function signup_schema() {
 				'description' => 'Last name.',
 			),
 			'mail' => array(
-	        	'type' => 'varchar',
+				'type' => 'varchar',
 				'length' => 64,
 				'not null' => FALSE,
 				'default' => '',
