@@ -87,43 +87,43 @@ function signup_data_form($form_state) {
 	$form['first'] = array(
 		'#type' => 'textfield',
 		'#title' => t('First Name'),
-		'#size' => 30,
+		'#size' => 40,
 		'#required' => TRUE,
 	);
 	$form['last'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Last Name'),
-		'#size' => 30,
+		'#size' => 40,
 		'#required' => TRUE,
 	);
 	$form['email'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Email'),
-		'#size' => 30,
+		'#size' => 40,
 		'#required' => TRUE,
 	);
 	$form['phone'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Phone'),
-		'#size' => 30,
+		'#size' => 40,
 		'#required' => TRUE,
 	);
 	$form['address_1'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Address 1'),
-		'#size' => 30,
+		'#size' => 40,
 		'#required' => TRUE,
 	);
 	$form['address_2'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Address 2'),
-		'#size' => 30,
+		'#size' => 40,
 		'#required' => FALSE,
 	);
 	$form['city'] = array(
 		'#type' => 'textfield',
 		'#title' => t('City'),
-		'#size' => 30,
+		'#size' => 25,
 		'#required' => TRUE,
 	);
 	$form['state'] = array(
@@ -192,6 +192,8 @@ function signup_data_form($form_state) {
 		'#required' => TRUE,
 	);
 	$form['submit'] = array(
+		'#prefix' => '<div id="form-actions">',
+		'#suffix' => '</div>',
 		'#type' => 'submit',
 		'#value' => 'Sign Up',
 	);
@@ -244,7 +246,7 @@ function signup_data_form_submit($form, &$form_state) {
 	$zip_code = $form_state['values']['zip_code'];
 	if (db_result(db_query("SELECT COUNT(*) FROM {signup} WHERE LOWER(mail) = LOWER('%s')", $email)) > 0) {
 		db_query("UPDATE {signup} SET first_name = '%s', last_name = '%s', phone = '%s', address_1 = '%s', address_2 = '%s', city = '%s', state = '%s', zip_code = '%s' WHERE mail = %d", $fname, $lname, $phone, $address_1, $address_2, $city, $state, $zip_code, $email);
-		drupal_set_message(t('Thank you, information has been updated.'));
+		drupal_set_message(t('Thank you, your information has been updated.'));
 	} else {
 		db_query("INSERT INTO {signup} (first_name, last_name, mail, phone, address_1, address_2, city, state, zip_code) VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", $fname, $lname, $email, $phone, $address_1, $address_2, $city, $state, $zip_code);
 		drupal_set_message(t('Thank you for signing up.'));
@@ -298,13 +300,29 @@ function signup_data_form_messages($form_state) {
 		'#default_value' => variable_get('sign_up_intro', 'Add you introduction message.'),
 		'#description' => t('The introduction message at the top of the form.')
 	);
+	$form['info_new'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Successful new sign up'),
+		'#size' => 60,
+		'#required' => TRUE,
+		'#default_value' => variable_get('sign_up_info_new', 'Thank you for signing up.'),
+		'#description' => t('Successful message displayed when a new user has signed up.')
+	);
+	$form['info_updated'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Successful updated sign up'),
+		'#size' => 60,
+		'#required' => TRUE,
+		'#default_value' => variable_get('sign_up_info_updated', 'Thank you, your information has been updated.'),
+		'#description' => t('Successful message displayed when a user updated their info.')
+	);
 	$form['phone_invalid'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Phone Number Invalid'),
 		'#size' => 60,
 		'#required' => TRUE,
 		'#default_value' => variable_get('sign_up_phone_invalid', 'Please enter a valid Phone Number.'),
-		'#description' => t('Error message displayed if the phone number has invalid characters or less than 4 numbers')
+		'#description' => t('Error message displayed if the phone number has invalid characters or less than 4 numbers.')
 	);
 	$form['zip_code_invalid'] = array(
 		'#type' => 'textfield',
@@ -312,7 +330,7 @@ function signup_data_form_messages($form_state) {
 		'#size' => 60,
 		'#required' => TRUE,
 		'#default_value' => variable_get('sign_up_zip_invalid', 'Please enter a valid Zip Code.'),
-		'#description' => t('Error message displayed if the zip code has invalid characters or less than 5 numbers')
+		'#description' => t('Error message displayed if the zip code has invalid characters or less than 5 numbers.')
 	);
 	$form['state_invalid'] = array(
 		'#type' => 'textfield',
@@ -332,10 +350,14 @@ function signup_data_form_messages($form_state) {
 // Submit sign up page messages form
 function signup_data_form_messages_submit($form, &$form_state) {
 	$intro = $form_state['values']['intro'];
+	$info_new = $form_state['values']['info_new'];
+	$info_updated = $form_state['values']['info_updated'];
 	$phone_invalid = $form_state['values']['phone_invalid'];
 	$zip_code_invalid = $form_state['values']['zip_code_invalid'];
 	$state_invalid = $form_state['values']['state_invalid'];
 	variable_set('sign_up_intro', $intro);
+	variable_set('sign_up_info_new', $info_new);
+	variable_set('sign_up_info_updated', $info_updated);
 	variable_set('sign_up_zip_invalid', $zip_code_invalid);
 	variable_set('sign_up_phone_invalid', $phone_invalid);
 	variable_set('sign_up_state_invalid', $state_invalid);
