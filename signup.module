@@ -285,6 +285,13 @@ function signup_block($op = 'list', $delta = '', $edit = array()) {
 
 // Create sign up page messages form
 function signup_data_form_messages($form_state) {
+	$form['intro'] = array(
+		'#type' => 'textarea',
+		'#title' => t('General introduction message'),
+		'#required' => TRUE,
+		'#default_value' => variable_get('sign_up_intro', 'Add you introduction message.'),
+		'#description' => t('The introduction message at the top of the form.')
+	);
 	$form['update'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Update information'),
@@ -292,13 +299,6 @@ function signup_data_form_messages($form_state) {
 		'#required' => TRUE,
 		'#default_value' => variable_get('sign_up_update', 'Please provide additional information.'),
 		'#description' => t('This message will display at the top of the sign up form when the user is redirected from the form used to signup using only their email address.')
-	);
-	$form['intro'] = array(
-		'#type' => 'textarea',
-		'#title' => t('General introduction message'),
-		'#required' => TRUE,
-		'#default_value' => variable_get('sign_up_intro', 'Add you introduction message.'),
-		'#description' => t('The introduction message at the top of the form.')
 	);
 	$form['info_new'] = array(
 		'#type' => 'textfield',
