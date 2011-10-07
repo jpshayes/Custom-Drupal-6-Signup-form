@@ -79,6 +79,8 @@ function signup_data_block_submit($form, &$form_state) {
 // Create sign up page form
 function signup_data_form($form_state) {
 	$form['intro'] = array(
+		'#prefix' => '<div id="form-intro">',
+		'#suffix' => '</div>',
 		'#type' => 'markup',
 		'#value' => variable_get('sign_up_intro', l('Please configure this message', 'admin/settings/signup-messages', $options = array()))
 	);
