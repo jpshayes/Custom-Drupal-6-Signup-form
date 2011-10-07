@@ -194,10 +194,12 @@ function signup_data_form($form_state) {
 		'#value' => 'Sign Up',
 	);
 	
+	// Add basic css file
+	drupal_add_css(drupal_get_path('module','signup') . '/css/signup.css');
 	// Add additional validation using javaScript
-	drupal_add_js(drupal_get_path('module','signup') . '/jquery.validate.min.js');
-	drupal_add_js(drupal_get_path('module','signup') . '/jquery.cookie.js');
-	drupal_add_js(drupal_get_path('module','signup') . '/signup.form.js');
+	drupal_add_js(drupal_get_path('module','signup') . '/js/jquery.validate.min.js');
+	drupal_add_js(drupal_get_path('module','signup') . '/js/jquery.cookie.js');
+	drupal_add_js(drupal_get_path('module','signup') . '/js/signup.form.js');
 	return $form;
 }
 
@@ -263,10 +265,12 @@ function signup_block($op = 'list', $delta = '', $edit = array()) {
 		case 'view':
 			switch ($delta) {
 				case 'signup':
-				//add a little extra validation using javaScript
-				drupal_add_js(drupal_get_path('module','signup') . '/jquery.validate.min.js');
-				drupal_add_js(drupal_get_path('module','signup') . '/jquery.cookie.js');
-				drupal_add_js(drupal_get_path('module','signup') . '/signup.form.js');
+				// Add basic css file
+				drupal_add_css(drupal_get_path('module','signup') . '/css/signup.css');
+				// Add additional validation using javaScript
+				drupal_add_js(drupal_get_path('module','signup') . '/js/jquery.validate.min.js');
+				drupal_add_js(drupal_get_path('module','signup') . '/js/jquery.cookie.js');
+				drupal_add_js(drupal_get_path('module','signup') . '/js/signup.form.js');
 					$block['subject'] = t('eNews Sign up');
 					$block['content'] = drupal_get_form('signup_data_block');
 				break;
