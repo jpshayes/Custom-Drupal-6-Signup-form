@@ -84,6 +84,12 @@ function signup_data_form($form_state) {
 		'#type' => 'markup',
 		'#value' => variable_get('sign_up_intro', l('Please configure this message', 'admin/settings/signup-messages', $options = array()))
 	);
+	$form['email'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Email'),
+		'#size' => 40,
+		'#required' => TRUE,
+	);
 	$form['first'] = array(
 		'#type' => 'textfield',
 		'#title' => t('First Name'),
@@ -96,15 +102,15 @@ function signup_data_form($form_state) {
 		'#size' => 40,
 		'#required' => TRUE,
 	);
-	$form['email'] = array(
+	$form['title'] = array(
 		'#type' => 'textfield',
-		'#title' => t('Email'),
+		'#title' => t('Title'),
 		'#size' => 40,
 		'#required' => TRUE,
 	);
-	$form['phone'] = array(
+	$form['employer'] = array(
 		'#type' => 'textfield',
-		'#title' => t('Phone'),
+		'#title' => t('Employer'),
 		'#size' => 40,
 		'#required' => TRUE,
 	);
@@ -112,7 +118,7 @@ function signup_data_form($form_state) {
 		'#type' => 'textfield',
 		'#title' => t('Address 1'),
 		'#size' => 40,
-		'#required' => TRUE,
+		'#required' => FALSE,
 	);
 	$form['address_2'] = array(
 		'#type' => 'textfield',
@@ -124,7 +130,7 @@ function signup_data_form($form_state) {
 		'#type' => 'textfield',
 		'#title' => t('City'),
 		'#size' => 25,
-		'#required' => TRUE,
+		'#required' => FALSE,
 	);
 	$form['state'] = array(
 		'#type' => 'select',
@@ -183,7 +189,7 @@ function signup_data_form($form_state) {
 			'WI' => 'Wisconsin',
 			'WY' => 'Wyoming'
 		),
-		'#required' => TRUE,
+		'#required' => FALSE,
 	);
 	$form['zip_code'] = array(
 		'#type' => 'textfield',
@@ -191,6 +197,12 @@ function signup_data_form($form_state) {
 		'#size' => 10,
 		'#maxlength' => 5,
 		'#required' => TRUE,
+	);
+	$form['phone'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Phone'),
+		'#size' => 40,
+		'#required' => FALSE,
 	);
 	$form['submit'] = array(
 		'#prefix' => '<div id="form-actions">',
@@ -217,7 +229,7 @@ function signup_data_form_validate($form, &$form_state) {
 	
 	// Validate the phone number provided is at least 5 digits
 	$phone = $form_state['values']['phone'];
-	if( !preg_match("^\+?\d{4,}$^", $phone) ) {
+	if( !empty($phone) && !preg_match("^\+?\d{4,}$^", $phone) ) {
 		form_set_error('phone', (variable_get('sign_up_phone_invalid', 'Please enter a valid Phone Number.')));
 	}
 	
@@ -226,30 +238,26 @@ function signup_data_form_validate($form, &$form_state) {
 	if( !preg_match("#[0-9]{5}#", $zip_code) ) {
 		form_set_error('zip_code', (variable_get('sign_up_zip_invalid', 'Please enter a valid Zip Code.')));
 	}
-	
-	// Validate the user selected a state
-	$state = $form_state['values']['state'];
-	if( $state == 'SEL') {
-		form_set_error('state', (variable_get('sign_up_state_invalid', 'Please select a state.')));
-	}	
 }
 
 // Submit sign up page form
 function signup_data_form_submit($form, &$form_state) {
+	$email = $form_state['values']['email'];
 	$fname = $form_state['values']['first'];
 	$lname = $form_state['values']['last'];
-	$email = $form_state['values']['email'];
-	$phone = $form_state['values']['phone'];
+	$title = $form_state['values']['title'];
+	$employer = $form_state['values']['employer'];
 	$address_1 = $form_state['values']['address_1'];
 	$address_2 = $form_state['values']['address_2'];
 	$city = $form_state['values']['city'];
 	$state = $form_state['values']['state'];
 	$zip_code = $form_state['values']['zip_code'];
+	$phone = $form_state['values']['phone'];
 	if (db_result(db_query("SELECT COUNT(*) FROM {signup} WHERE LOWER(mail) = LOWER('%s')", $email)) > 0) {
-		db_query("UPDATE {signup} SET first_name = '%s', last_name = '%s', phone = '%s', address_1 = '%s', address_2 = '%s', city = '%s', state = '%s', zip_code = '%s' WHERE mail = '%s'", $fname, $lname, $phone, $address_1, $address_2, $city, $state, $zip_code, $email);
+		db_query("UPDATE {signup} SET first_name = '%s', last_name = '%s', title = '%s', employer = '%s', address_1 = '%s', address_2 = '%s', city = '%s', state = '%s', zip_code = '%s', phone = '%s' WHERE mail = '%s'", $fname, $lname, $title, $employer, $address_1, $address_2, $city, $state, $zip_code, $phone, $email);
 		drupal_set_message(t('Thank you, your information has been updated.'));
 	} else {
-		db_query("INSERT INTO {signup} (first_name, last_name, mail, phone, address_1, address_2, city, state, zip_code) VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", $fname, $lname, $email, $phone, $address_1, $address_2, $city, $state, $zip_code);
+		db_query("INSERT INTO {signup} (mail, first_name, last_name, title, employer, address_1, address_2, city, state, zip_code, phone) VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", $email, $fname, $lname, $title, $employer, $address_1, $address_2, $city, $state, $zip_code, $phone);
 		drupal_set_message(t('Thank you for signing up.'));
 	}
 }

@@ -11,6 +11,13 @@ function signup_schema() {
 				'unsigned' => TRUE,
 				'not null' => TRUE
 			),
+			'mail' => array(
+				'type' => 'varchar',
+				'length' => 64,
+				'not null' => FALSE,
+				'default' => '',
+				'description' => "Email address.",
+			),
 			'first_name' => array(
 				'type' => 'varchar',
 				'length' => 255,
@@ -25,19 +32,19 @@ function signup_schema() {
 				'default' => '',
 				'description' => 'Last name.',
 			),
-			'mail' => array(
-				'type' => 'varchar',
-				'length' => 64,
-				'not null' => FALSE,
-				'default' => '',
-				'description' => "User's email address.",
-			),
-			'phone' => array(
+			'title' => array(
 				'type' => 'varchar',
 				'length' => 255,
 				'not null' => TRUE,
 				'default' => '',
-				'description' => 'Phone Number.',
+				'description' => "Job title.",
+			),
+			'employer' => array(
+				'type' => 'varchar',
+				'length' => 255,
+				'not null' => TRUE,
+				'default' => '',
+				'description' => "Employer.",
 			),
 			'address_1' => array(
 				'type' => 'varchar',
@@ -73,6 +80,13 @@ function signup_schema() {
 				'not null' => TRUE,
 				'default' => '',
 				'description' => 'Zip Code.',
+			),
+			'phone' => array(
+				'type' => 'varchar',
+				'length' => 255,
+				'not null' => TRUE,
+				'default' => '',
+				'description' => 'Phone Number.',
 			),
 		),
 		'unique keys' => array(
