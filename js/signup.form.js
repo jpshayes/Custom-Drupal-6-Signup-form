@@ -5,6 +5,13 @@ $(document).ready(function(){
 				required: true,
 				email: true
 			}
+		},
+		errorPlacement: function(error, element) {
+				$(element).parent().append(error);
+				var w = $(element).width();
+				var h = ($(element).parent().outerHeight() * 0.5) - 5;
+				$(error).css('left', w);
+				$(error).css('top', h);
 		}
 	});
 	$('#signup-data-block .form-submit').click(function(){

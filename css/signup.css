@@ -1,2 +1,17 @@
 #signup-data-form .form-item {
+	position: relative;
+}
+
+#signup-data-form .form-item input {
+	padding: 6px 0 6px 6px;
+}
+
+#signup-data-form label.error {
+	background: url("../images/error.png") no-repeat scroll 5px center #FFFFFF;
+	border: 1px solid #FF5F5F;
+	border-radius: 5px 5px 5px 5px;
+	color: #000000;
+	padding: 4px 9px 4px 25px;
+	position: absolute;
+	opacity: 0.85;
 }
