@@ -341,14 +341,6 @@ function signup_data_form_messages($form_state) {
 		'#default_value' => variable_get('sign_up_zip_invalid', 'Please enter a valid Zip Code.'),
 		'#description' => t('Error message displayed if the zip code has invalid characters or less than 5 numbers.')
 	);
-	$form['state_invalid'] = array(
-		'#type' => 'textfield',
-		'#title' => t('State Empty'),
-		'#size' => 60,
-		'#required' => TRUE,
-		'#default_value' => variable_get('sign_up_state_invalid', 'Please select a state.'),
-		'#description' => t('Error message displayed if the state field is not set.')
-	);
 	$form['submit'] = array(
 		'#type' => 'submit',
 		'#value' => 'Save',
@@ -363,13 +355,11 @@ function signup_data_form_messages_submit($form, &$form_state) {
 	$info_updated = $form_state['values']['info_updated'];
 	$phone_invalid = $form_state['values']['phone_invalid'];
 	$zip_code_invalid = $form_state['values']['zip_code_invalid'];
-	$state_invalid = $form_state['values']['state_invalid'];
 	variable_set('sign_up_intro', $intro);
 	variable_set('sign_up_info_new', $info_new);
 	variable_set('sign_up_info_updated', $info_updated);
 	variable_set('sign_up_zip_invalid', $zip_code_invalid);
 	variable_set('sign_up_phone_invalid', $phone_invalid);
-	variable_set('sign_up_state_invalid', $state_invalid);
 	drupal_set_message(t('Your changes have been saved.'));
 }
 
