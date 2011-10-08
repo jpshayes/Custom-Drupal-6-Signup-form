@@ -1,4 +1,4 @@
 name = Hayes Sign up
-description = Creates Sign up form in a block to collect name / email
+description = Creates Sign up form in a block to collect email, then redirects to a full form to collect additional data.
 package = Hayes
 core = 6.x
