@@ -189,6 +189,7 @@ function signup_data_form($form_state) {
 		'#type' => 'textfield',
 		'#title' => t('Zip Code'),
 		'#size' => 10,
+		'#maxlength' => 5,
 		'#required' => TRUE,
 	);
 	$form['submit'] = array(
@@ -222,7 +223,7 @@ function signup_data_form_validate($form, &$form_state) {
 	
 	// Validate the zip code provided is at least 5 digits
 	$zip_code = $form_state['values']['zip_code'];
-	if( !preg_match("^\+?\d{5,}$^", $zip_code) ) {
+	if( !preg_match("#[0-9]{5}#", $zip_code) ) {
 		form_set_error('zip_code', (variable_get('sign_up_zip_invalid', 'Please enter a valid Zip Code.')));
 	}
 	
