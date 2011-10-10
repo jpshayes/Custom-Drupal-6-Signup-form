@@ -4,11 +4,30 @@ $(document).ready(function(){
 			email: {
 				required: true,
 				email: true
+			},
+			zip_code: {
+				required: true,
+				digits: true,
+				minlength: 5
+			}
+		},
+		messages: {
+			first: {
+				required: 'Please enter your first name.'
+			},
+			last: {
+				required: 'Please enter your last name.'
+			},
+			title: {
+				required: 'Please enter your job title.'
+			},
+			employer: {
+				required: 'Please enter your employer.'
 			}
 		},
 		errorPlacement: function(error, element) {
 				$(element).parent().append(error);
-				var w = $(element).width();
+				var w = $(element).width() + 10;
 				var h = ($(element).parent().outerHeight() * 0.5) - 5;
 				$(error).css('left', w);
 				$(error).css('top', h);
