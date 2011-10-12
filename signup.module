@@ -63,15 +63,11 @@ function signup_data_block_validate($form, &$form_state) {
 	if (!signup_valid_email_address($mail)) {
 		form_set_error('mail', t('The e-mail address ' . $mail . ' is not a valid email address.'));
 	}
-	else if (db_result(db_query("SELECT COUNT(*) FROM {signup} WHERE LOWER(mail) = LOWER('%s')", $mail)) > 0) {
-		form_set_error('mail', t('The e-mail address ' . $mail . ' is already in our Database.'));
-	}
 }
 
 // Submit block form
 function signup_data_block_submit($form, &$form_state) {
-	$email = $form_state['values']['email'];
-	db_query("INSERT INTO {signup} (mail) VALUES('%s')",$email);
+	setcookie('signup_email', $form_state['values']['email']); 
 	drupal_set_message(variable_get('sign_up_update', 'Please provide additional information.'));
 }
 
@@ -86,7 +82,7 @@ function signup_data_form($form_state) {
 	);
 	$form['email'] = array(
 		'#type' => 'textfield',
-		'#title' => t('Email'),
+		'#title' => t('Confirm Email'),
 		'#size' => 40,
 		'#required' => TRUE,
 	);
@@ -222,9 +218,18 @@ function signup_data_form($form_state) {
 
 // Validate sign up page form
 function signup_data_form_validate($form, &$form_state) {
-	$mail = $form_state['values']['email'];
-	if (!signup_valid_email_address($mail)) {
-		form_set_error('email', t('The email address ' . $mail . ' is not a valid email address.'));
+	
+	if(isset($_COOKIE['signup_email'])) {
+		$email = $_COOKIE['signup_email'];
+	}
+	$verify_mail = $form_state['values']['email'];
+	
+	if ($verify_email != $email) {
+		form_set_error('email', t('The email address ' . $verify_email . ' does not match ' . $email));
+	}
+	
+	if (!signup_valid_email_address($verify_mail)) {
+		form_set_error('email', t('The email address ' . $verify_mail . ' is not a valid email address.'));
 	}
 	
 	// Validate the phone number provided is at least 5 digits
