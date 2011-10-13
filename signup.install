@@ -5,18 +5,18 @@
 function signup_schema() {
 	$schema['signup'] = array(
 		'fields' => array(
-			'sid' => array(
+			'id' => array(
 				'description' => 'The primary identifier for a signup.',
 				'type' => 'serial',
 				'unsigned' => TRUE,
 				'not null' => TRUE
 			),
-			'mail' => array(
+			'sal' => array(
 				'type' => 'varchar',
 				'length' => 64,
 				'not null' => FALSE,
 				'default' => '',
-				'description' => "Email address.",
+				'description' => "Salutation",
 			),
 			'first_name' => array(
 				'type' => 'varchar',
@@ -31,6 +31,13 @@ function signup_schema() {
 				'not null' => TRUE,
 				'default' => '',
 				'description' => 'Last name.',
+			),
+			'email1' => array(
+				'type' => 'varchar',
+				'length' => 64,
+				'not null' => FALSE,
+				'default' => '',
+				'description' => "Email address.",
 			),
 			'title' => array(
 				'type' => 'varchar',
@@ -90,9 +97,9 @@ function signup_schema() {
 			),
 		),
 		'unique keys' => array(
-			'mail' => array('mail'),
+			'mail' => array('email1'),
 		),
-		'primary key' => array('sid'),
+		'primary key' => array('id'),
 	);
 	return $schema;
 }

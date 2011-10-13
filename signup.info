@@ -1,4 +1,5 @@
-name = Hayes Sign up
-description = Creates Sign up form in a block to collect email, then redirects to a full form to collect additional data.
-package = Hayes
+
+name = eNews Signup
+description = Allow users to signup to the eNewsletter.
 core = 6.x
+package = Hayes

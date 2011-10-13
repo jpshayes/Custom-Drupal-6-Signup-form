@@ -9,73 +9,74 @@ function signup_perm() {
 }
 
 /**
-* Implementation of hook_menu().
-* See http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_menu/6
-*/
+ * Implement hook_menu().
+ *
+ * Note that each item has both an entry point to prepare the form, and also
+ * a callback function that provides and AHAH menu callback.
+ */
 function signup_menu() {
 	$items = array();
 	$items['signup/form'] = array(
-		'title' => t('Mailing list sign up'),
-		'page callback' => 'signup_form',
-		'access arguments' => array('access content'),
-		'description' => t('Sign up for our mailing list'),
-		'type' => MENU_NORMAL_ITEM,
+		'title' => 'eNews Signup',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('signup_form'),
+		'access callback' => TRUE,
+		'type' => MENU_LOCAL_TASK,
 	);
-	$items['admin/settings/signup-messages'] = array(
-		'title' => t('Mailing list sign up'),
-		'page callback' => 'signup_form_messages',
-		'access arguments' => array('administer signup messages'),
-		'description' => t('Configure the Mailing list sign up form.'),
-		'type' => MENU_NORMAL_ITEM,
+	$items['signup/form/callback'] = array(
+		'title' => 'eNews Signup callback',
+		'page callback' => 'signup_form_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
 	);
- 	return $items;
+
+	return $items;
 }
 
-// Callback for $items['signup/form'] in hook_menu()
-function signup_form() {
-	return drupal_get_form('signup_data_form');
-}
-
-// Callback for $items['admin/settings/signup-messages'] in hook_menu()
-function signup_form_messages() {
-	return drupal_get_form('signup_data_form_messages');
-}
-
-// Create sign up block form used in hook_block()
-function signup_data_block($form_state) {
-	$form['email'] = array(
-		'#type' => 'textfield',
-		'#title' => t('Email'),
-		'#size' => 40,
-		'#required' => TRUE,
-	);	
-	$form['submit'] = array(
-		'#type' => 'submit',
-		'#value' => 'Sign Up'
-	);
-	$form['#redirect'] = 'signup/form';
+/**
+ * Does the very standard things that must be done in any normal callback.
+ */
+function signup_callback_helper() {
+	$form_state = array('storage' => NULL, 'submitted' => FALSE);
+	$form_build_id = $_POST['form_build_id'];
+	$form = form_get_cache($form_build_id, $form_state);
+	$args = $form['#parameters'];
+	$form_id = array_shift($args);
+	$form_state['post'] = $form['#post'] = $_POST;
+	// Enable the submit/validate handlers to determine whether AHAH-submittted.
+	$form_state['ahah_submission'] = TRUE;
+	$form['#programmed'] = $form['#redirect'] = FALSE;
+	drupal_process_form($form_id, $form, $form_state);
+	$form = drupal_rebuild_form($form_id, $form_state, $args, $form_build_id);
 	return $form;
 }
 
-// Validate block form
-function signup_data_block_validate($form, &$form_state) {
-	$mail = $form_state['values']['email'];
-	if (!signup_valid_email_address($mail)) {
-		form_set_error('mail', t('The e-mail address ' . $mail . ' is not a valid email address.'));
-	}
-	else if (db_result(db_query("SELECT COUNT(*) FROM {signup} WHERE LOWER(mail) = LOWER('%s')", $mail)) > 0) {
-		form_set_error('mail', t('The e-mail address ' . $mail . ' is already in our Database.'));
-	}
-}
-
-// Submit block form
-function signup_data_block_submit($form, &$form_state) {
-	drupal_set_message(variable_get('sign_up_update', 'Please provide additional information.'));
+/**
+ * Implements hook_init() to add module css.
+ */
+function signup_init() {
+	drupal_add_css(drupal_get_path('module', 'signup') . '/signup.css');
 }
 
 
-// Create sign up page form
-function signup_data_form($form_state) {
+/**
+ * Form builder function to create a form showing dependent dropdowns. The
+ * second dropdown has its values populated based on the first.
+ * @param $form_state
+ * @param $my_values
+ */
+function signup_form(&$form_state, $my_values = array()) {
+	$form = array();
+
+	// get the list of options to populate the first dropdown
+	$initial_options = _signup_get_first_dropdown_options();
+
+	// if we have a value for the first dropdown from $form_state['values'] we use
+	// this both as the default value for the first dropdown and also as a
+	// parameter to pass to the function that retrieves the options for the
+	// second dropdown.
+	$master_selection = !empty($form_state['values']['master_dropdown']) ? $form_state['values']['master_dropdown'] : t('US');
+
 	$form['intro'] = array(
 		'#prefix' => '<div id="form-intro">',
 		'#suffix' => '</div>',
@@ -90,9 +91,20 @@ function signup_data_form($form_state) {
 	);
 	$form['email'] = array(
 		'#type' => 'textfield',
-		'#title' => t('Verify aEmail'),
+		'#title' => t('Verify Email'),
 		'#size' => 40,
 		'#required' => TRUE,
+	);
+	$form['salutation'] = array(
+		'#type' => 'select',
+		'#title' => t('Salutation'),
+		'#options' => array(
+			'Dr.' => t('Dr.'),
+			'Mr.' => t('Mr.'),
+			'Mrs.' => t('Mrs.'),
+			'Ms.' => t('Ms.'),
+		),
+		'#required' => FALSE,
 	);
 	$form['first'] = array(
 		'#type' => 'textfield',
@@ -104,19 +116,56 @@ function signup_data_form($form_state) {
 		'#type' => 'textfield',
 		'#title' => t('Last Name'),
 		'#size' => 40,
-		'#required' => TRUE,
+		'#required' => TRUS,
 	);
 	$form['title'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Title'),
 		'#size' => 40,
-		'#required' => TRUE,
+		'#required' => FALSE,
+	);
+	$form['employer_type'] = array(
+		'#type' => 'select',
+		'#title' => t('Employer Type'),
+		'#required' => FALSE,
+		'#options' => array(
+			'school_district_office' => t('School District Office'),
+			'pre_K_12_School' => t('Pre K-12 School'),
+			'university' => t('University'),
+			'state_agency' => t('State Agency'),
+			'federal_government' => t('Federal Government'),
+			'pre_K_12_School' => t('Pre K-12 School'),
+			'foundation' => t('Foundation'),
+			'non_profit_organization' => t('Non-Profit organization'),
+			'business' => t('Business'),
+			'self_employed' => t('Self-Employed'),
+			'other' => t('Other'),
+		),
 	);
 	$form['employer'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Employer'),
 		'#size' => 40,
-		'#required' => TRUE,
+		'#required' => FALSE,
+	);
+	$form['role'] = array(
+		'#type' => 'select',
+		'#title' => t('Role'),
+		'#required' => FALSE,
+		'#options' => array(
+			'policy_maker' => t('Policy Maker'),
+			'school_leader' => t('School Leader'),
+			'induction_leader' => t('Induction Leader'),
+			'beginning_teacher' => t('Beginning Teacher'),
+			'mentor_teacher' => t('Mentor Teacher'),
+			'pre_k_12_teacher' => t('Pre K-12 Teacher'),
+			'union_leader' => t('Union Leader'),
+			'central_office_administrator_coordinator' => t('Central Office Administrator / Coordinator'),
+			'university_faculty_supervisor' => t('University Faculty / Supervisor'),
+			'professional_developer' => t('Professional Developer'),
+			'researcher' => t('Researcher'),
+			'other' => t('Other'),
+		),
 	);
 	$form['address_1'] = array(
 		'#type' => 'textfield',
@@ -136,96 +185,110 @@ function signup_data_form($form_state) {
 		'#size' => 25,
 		'#required' => FALSE,
 	);
-	$form['state'] = array(
+	$form['master_dropdown'] = array(
+		'#type' => 'select',
+		'#title' => 'County',
+		'#options' => $initial_options,
+		'#default_value' => $master_selection,
+		'#ahah' => array(
+			'path' => 'signup/form/callback',
+			'wrapper' => 'dependent-dropdown-wrapper',
+			// 'event' => 'change', // default value: does not need to be set explicitly.
+		),
+		'#attributes' => array('class' => 'master-dropdown'),
+	);
+
+	// The CSS for this module hides this next button if JS is enabled.
+	$form['continue_to_dependent_dropdown'] = array(
+		'#type' => 'submit',
+		'#value' => t('Choose'),
+		'#attributes' => array('class' => 'next-button'),
+		'#submit' => array('signup_form_continue'),
+	);
+
+	$form['dependent_dropdown_holder'] = array(
+		'#tree' => TRUE,
+		'#prefix' => '<div id="dependent-dropdown-wrapper" class="form-item">',
+		'#suffix' => '</div>',
+	);
+
+	$form['dependent_dropdown_holder']['dependent_dropdown'] = array(
 		'#type' => 'select',
 		'#title' => t('State'),
-		'#options' => array(
-			'SEL' => '--Select--',
-			'AL' => 'Alabama',
-			'AK' => 'Alaska',
-			'AZ' => 'Arizona',
-			'AR' => 'Arkansas',
-			'CA' => 'California',
-			'CO' => 'Colorado',
-			'CT' => 'Connecticut',
-			'DE' => 'Delaware',
-			'DC' => 'District Of Columbia',
-			'FL' => 'Florida',
-			'GA' => 'Georgia',
-			'HI' => 'Hawaii',
-			'ID' => 'Idaho',
-			'IL' => 'Illinois',
-			'IN' => 'Indiana',
-			'IA' => 'Iowa',
-			'KS' => 'Kansas',
-			'KY' => 'Kentucky',
-			'LA' => 'Louisiana',
-			'ME' => 'Maine',
-			'MD' => 'Maryland',
-			'MA' => 'Massachusetts',
-			'MI' => 'Michigan',
-			'MN' => 'Minnesota',
-			'MS' => 'Mississippi',
-			'MO' => 'Missouri',
-			'MT' => 'Montana',
-			'NE' => 'Nebraska',
-			'NV' => 'Nevada',
-			'NH' => 'New Hampshire',
-			'NJ' => 'New Jersey',
-			'NM' => 'New Mexico',
-			'NY' => 'New York',
-			'NC' => 'North Carolina',
-			'ND' => 'North Dakota',
-			'OH' => 'Ohio',
-			'OK' => 'Oklahoma',
-			'OR' => 'Oregon',
-			'PA' => 'Pennsylvania',
-			'RI' => 'Rhode Island',
-			'SC' => 'South Carolina',
-			'SD' => 'South Dakota',
-			'TN' => 'Tennessee',
-			'TX' => 'Texas',
-			'UT' => 'Utah',
-			'VT' => 'Vermont',
-			'VA' => 'Virginia',
-			'WA' => 'Washington',
-			'WV' => 'West Virginia',
-			'WI' => 'Wisconsin',
-			'WY' => 'Wyoming'
-		),
-		'#required' => FALSE,
+
+		// when the form is rebuilt during processing (either AJAX or multistep),
+		// the $master_selction variable will now have the new value and so the
+		// options will change.
+		'#options' => _signup_get_second_dropdown_options($master_selection),
+		'#default_value' => isset($my_values['dependent_dropdown']) ? $my_values['dependent_dropdown'] : '',
 	);
 	$form['zip_code'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Zip Code'),
 		'#size' => 10,
 		'#maxlength' => 5,
-		'#required' => TRUE,
+		'#required' => FALSE,
 	);
 	$form['phone'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Phone'),
 		'#size' => 40,
 		'#required' => FALSE,
-	);
+	);	
 	$form['submit'] = array(
 		'#prefix' => '<div id="form-actions">',
 		'#suffix' => '</div>',
 		'#type' => 'submit',
 		'#value' => 'Sign Up',
 	);
-	
 	// Add basic css file
 	drupal_add_css(drupal_get_path('module','signup') . '/css/signup.css');
 	// Add additional validation using javaScript
 	drupal_add_js(drupal_get_path('module','signup') . '/js/jquery.validate.min.js');
 	drupal_add_js(drupal_get_path('module','signup') . '/js/jquery.cookie.js');
 	drupal_add_js(drupal_get_path('module','signup') . '/js/signup.form.js');
+	
+	if($form_state['ahah_submission']){
+	    // Clear the form errors.  We don't need to show any validation errors if this is an ahah submit, not a final submit
+	    drupal_get_messages('error');
+	    // Clear the form error state.
+	    form_set_error(null, '', true);
+	}
 	return $form;
 }
 
-// Validate sign up page form
-function signup_data_form_validate($form, &$form_state) {
+/**
+ * The AHAH callback. It processes the form using signup_callback_helper()
+ * and then
+ */
+function signup_form_callback() {
+	$form = signup_callback_helper();
+
+	$changed_elements = $form['dependent_dropdown_holder'];
+
+	// Prevent duplicate wrappers.
+	unset($changed_elements['#prefix'], $changed_elements['#suffix']);
+
+	$output = theme('status_messages') . drupal_render($changed_elements);
+
+	drupal_json(array(
+		'status'   => TRUE,
+		'data'     => $output,
+	));
+}
+
+/**
+* Submit handler for 'continue_to_dependent_dropdown'.
+*/
+function signup_form_continue($form, &$form_state) {
+	$values = $form_state['values'];
+	unset($form_state['submit_handlers']);
+	form_execute_handlers('submit', $form, $form_state);
+	$form_state['my_values'] = $values;
+	$form_state['rebuild'] = TRUE;
+}
+
+function signup_form_validate($form, &$form_state) {
 	$mail = $form_state['values']['email'];
 	if (!signup_valid_email_address($mail)) {
 		form_set_error('email', t('The email address ' . $mail . ' is not a valid email address.'));
@@ -244,33 +307,44 @@ function signup_data_form_validate($form, &$form_state) {
 	}
 }
 
-// Submit sign up page form
-function signup_data_form_submit($form, &$form_state) {
-	$email = $form_state['values']['email'];
-	$fname = $form_state['values']['first'];
-	$lname = $form_state['values']['last'];
-	$title = $form_state['values']['title'];
-	$employer = $form_state['values']['employer'];
-	$address_1 = $form_state['values']['address_1'];
-	$address_2 = $form_state['values']['address_2'];
-	$city = $form_state['values']['city'];
-	$state = $form_state['values']['state'];
-	$zip_code = $form_state['values']['zip_code'];
-	$phone = $form_state['values']['phone'];
-	if (db_result(db_query("SELECT COUNT(*) FROM {signup} WHERE LOWER(mail) = LOWER('%s')", $email)) > 0) {
-		db_query("UPDATE {signup} SET first_name = '%s', last_name = '%s', title = '%s', employer = '%s', address_1 = '%s', address_2 = '%s', city = '%s', state = '%s', zip_code = '%s', phone = '%s' WHERE mail = '%s'", $fname, $lname, $title, $employer, $address_1, $address_2, $city, $state, $zip_code, $phone, $email);
-		drupal_set_message(t('Thank you, your information has been updated.'));
-	} else {
-		db_query("INSERT INTO {signup} (mail, first_name, last_name, title, employer, address_1, address_2, city, state, zip_code, phone) VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", $email, $fname, $lname, $title, $employer, $address_1, $address_2, $city, $state, $zip_code, $phone);
-		drupal_set_message(t('Thank you for signing up.'));
-	}
-}
 
 /**
-* Implementation of hook_block().
-* Create block with sign up block form as its contents
-* See http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
-*/
+ * Default submit handler for form. This one happens when the main submit
+ * button is pressed.
+ */
+function signup_form_submit($form, &$form_state) {
+	// If an AHAH submission, it's just the dependent dropdown working.
+	if (!empty($form_state['ahah_submission'])) {
+		return;
+	}
+
+	if ($form_state['clicked_button']['#id'] == 'edit-submit') {
+			$form_state['rebuild'] = FALSE;
+			$email = $form_state['values']['email'];
+			$fname = $form_state['values']['first'];
+			$lname = $form_state['values']['last'];
+			$title = $form_state['values']['title'];
+			$employer = $form_state['values']['employer'];
+			$address_1 = $form_state['values']['address_1'];
+			$address_2 = $form_state['values']['address_2'];
+			$city = $form_state['values']['city'];
+			$state = $form_state['values']['state'];
+			$zip_code = $form_state['values']['zip_code'];
+			$phone = $form_state['values']['phone'];
+			if (db_result(db_query("SELECT COUNT(*) FROM {signup} WHERE LOWER(email1) = LOWER('%s')", $email)) > 0) {
+				db_query("UPDATE {signup} SET first_name = '%s', last_name = '%s', title = '%s', employer = '%s', address_1 = '%s', address_2 = '%s', city = '%s', state = '%s', zip_code = '%s', phone = '%s' WHERE email1 = '%s'", $fname, $lname, $title, $employer, $address_1, $address_2, $city, $state, $zip_code, $phone, $email);
+				drupal_set_message(t('Thank you, your information has been updated.'));
+			} else {
+				db_query("INSERT INTO {signup} (email1, first_name, last_name, title, employer, address_1, address_2, city, state, zip_code, phone) VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", $email, $fname, $lname, $title, $employer, $address_1, $address_2, $city, $state, $zip_code, $phone);
+				drupal_set_message(t('Thank you for signing up.'));
+			}
+	}
+
+	// edit-next or anything else will cause rebuild.
+	$form_state['rebuild'] = TRUE;
+}
+
+
 function signup_block($op = 'list', $delta = '', $edit = array()) {
 	// The $op parameter determines what piece of information is being requested.
 	switch ($op) {
@@ -296,75 +370,132 @@ function signup_block($op = 'list', $delta = '', $edit = array()) {
 	}
 }
 
-// Create sign up page messages form
-function signup_data_form_messages($form_state) {
-	$form['intro'] = array(
-		'#type' => 'textarea',
-		'#title' => t('General introduction message'),
-		'#required' => TRUE,
-		'#default_value' => variable_get('sign_up_intro', 'Add you introduction message.'),
-		'#description' => t('The introduction message at the top of the form.')
-	);
-	$form['update'] = array(
+// Create sign up block form used in hook_block()
+function signup_data_block($form_state) {
+	$form['email'] = array(
 		'#type' => 'textfield',
-		'#title' => t('Update information'),
-		'#size' => 60,
+		'#title' => t('Email'),
+		'#size' => 40,
 		'#required' => TRUE,
-		'#default_value' => variable_get('sign_up_update', 'Please provide additional information.'),
-		'#description' => t('This message will display at the top of the sign up form when the user is redirected from the form used to signup using only their email address.')
-	);
-	$form['info_new'] = array(
-		'#type' => 'textfield',
-		'#title' => t('Successful new sign up'),
-		'#size' => 60,
-		'#required' => TRUE,
-		'#default_value' => variable_get('sign_up_info_new', 'Thank you for signing up.'),
-		'#description' => t('Successful message displayed when a new user has signed up.')
-	);
-	$form['info_updated'] = array(
-		'#type' => 'textfield',
-		'#title' => t('Successful updated sign up'),
-		'#size' => 60,
-		'#required' => TRUE,
-		'#default_value' => variable_get('sign_up_info_updated', 'Thank you, your information has been updated.'),
-		'#description' => t('Successful message displayed when a user updated their info.')
-	);
-	$form['phone_invalid'] = array(
-		'#type' => 'textfield',
-		'#title' => t('Phone Number Invalid'),
-		'#size' => 60,
-		'#required' => TRUE,
-		'#default_value' => variable_get('sign_up_phone_invalid', 'Please enter a valid Phone Number.'),
-		'#description' => t('Error message displayed if the phone number has invalid characters or less than 4 numbers.')
-	);
-	$form['zip_code_invalid'] = array(
-		'#type' => 'textfield',
-		'#title' => t('Zip Code Invalid'),
-		'#size' => 60,
-		'#required' => TRUE,
-		'#default_value' => variable_get('sign_up_zip_invalid', 'Please enter a valid Zip Code.'),
-		'#description' => t('Error message displayed if the zip code has invalid characters or less than 5 numbers.')
-	);
+	);	
 	$form['submit'] = array(
 		'#type' => 'submit',
-		'#value' => 'Save',
+		'#value' => 'Sign Up'
 	);
+	$form['#redirect'] = 'signup/form';
 	return $form;
 }
 
-// Submit sign up page messages form
-function signup_data_form_messages_submit($form, &$form_state) {
-	$intro = $form_state['values']['intro'];
-	$info_new = $form_state['values']['info_new'];
-	$info_updated = $form_state['values']['info_updated'];
-	$phone_invalid = $form_state['values']['phone_invalid'];
-	$zip_code_invalid = $form_state['values']['zip_code_invalid'];
-	variable_set('sign_up_intro', $intro);
-	variable_set('sign_up_info_new', $info_new);
-	variable_set('sign_up_info_updated', $info_updated);
-	variable_set('sign_up_zip_invalid', $zip_code_invalid);
-	variable_set('sign_up_phone_invalid', $phone_invalid);
-	drupal_set_message(t('Your changes have been saved.'));
+// Validate block form
+function signup_data_block_validate($form, &$form_state) {
+	$mail = $form_state['values']['email'];
+	if (!signup_valid_email_address($mail)) {
+		form_set_error('mail', t('The e-mail address ' . $mail . ' is not a valid email address.'));
+	}
+}
+
+// Submit block form
+function signup_data_block_submit($form, &$form_state) {
+	drupal_set_message(variable_get('sign_up_update', 'Please provide additional information.'));
+}
+
+/**
+ * Helper function to populate the first dropdown. This would normally be
+ * pulling data from the database.
+ *
+ * @return array of options
+ */
+function _signup_get_first_dropdown_options() {
+	// drupal_map_assoc() just makes an array('Strings' => 'Strings'...).
+	return drupal_map_assoc(array(t('US'), t('Canada')));
+}
+
+/**
+ * Helper function to populate the second dropdown. This would normally be
+ * pulling data from the database.
+ *
+ * @param key. This will determine which set of options is returned.
+ *
+ * @return array of options
+ */
+function _signup_get_second_dropdown_options($key = '') {
+	$options = array(
+		t('US') => drupal_map_assoc(array(
+			t('Alabama'),
+			t('Alaska'),
+			t('American Samoa'),
+			t('Arizona'),
+			t('Arkansas'),
+			t('California'),
+			t('Colorado'),
+			t('Connecticut'),
+			t('Delaware'),
+			t('District of Columbia'),
+			t('Florida'),
+			t('Georgia'),
+			t('Guam'),
+			t('Hawaii'),
+			t('Idaho'),
+			t('Illinois'),
+			t('Indiana'),
+			t('Iowa'),
+			t('Kansas'),
+			t('Kentucky'),
+			t('Louisiana'),
+			t('Maine'),
+			t('Maryland'),
+			t('Massachusetts'),
+			t('Michigan'),
+			t('Minnesota'),
+			t('Mississippi'),
+			t('Missouri'),
+			t('Montana'),
+			t('Nebraska'),
+			t('Nevada'),
+			t('New Hampshire'),
+			t('New Jersey'),
+			t('New Mexico'),
+			t('New York'),
+			t('North Carolina'),
+			t('North Dakota'),
+			t('Northern Marianas Islands'),
+			t('Ohio'),
+			t('Oklahoma'),
+			t('Oregon'),
+			t('Pennsylvania'),
+			t('Puerto Rico'),
+			t('Rhode Island'),
+			t('South Carolina'),
+			t('South Dakota'),
+			t('Tennessee'),
+			t('Texas'),
+			t('Utah'),
+			t('Vermont'),
+			t('Virginia'),
+			t('Virgin Islands'),
+			t('Washington'),
+			t('West Virginia'),
+			t('Wisconsin'),
+			t('Wyoming')
+		)),
+		t('Canada') => drupal_map_assoc(array(
+			t('Alberta'),
+			t('British Columbia'),
+			t('New Brunswick'),
+			t('Newfoundland and Labrador'),
+			t('Nova Scotia'),
+			t('Ontario'),
+			t('Prince Edward Island'),
+			t('Quebec'),
+			t('Saskatchewan')
+		)),
+	);
+	if (isset($options[$key])) {
+		return $options[$key];
+	}
+	else {
+		return array();
+	}
 }
 
 // Validation functions
@@ -376,4 +507,4 @@ function signup_valid_email_address($mail) {
 
 	return preg_match("/^$user@($domain|(\[($ipv4|$ipv6)\]))$/", $mail);
 }
- 
+

@@ -1,9 +1,18 @@
 $(document).ready(function(){
-	$('#signup-data-form, #signup-data-block').validate({
+	$('#signup-data-block').validate({
 		rules: {
 			email: {
 				required: true,
-				email: true
+				email: true,
+			}
+		}
+	});
+	$('#signup-form').validate({
+		rules: {
+			email: {
+				required: true,
+				email: true,
+				equalTo: "#edit-temp-email"
 			},
 			zip_code: {
 				required: true,
@@ -12,6 +21,11 @@ $(document).ready(function(){
 			}
 		},
 		messages: {
+			email: {
+				required: 'Please provide an email address',
+				email: 'Please provide a valid email address',
+				equalTo: 'The specified email address do not match'
+			},
 			first: {
 				required: 'Please enter your first name.'
 			},
@@ -38,6 +52,6 @@ $(document).ready(function(){
 		$.cookie('signup', email, { expires: 7, path: '/' });
 	});
 	var cookie = $.cookie('signup');
-	$('#signup-data-form #edit-email').val(cookie)
+	$('#signup-form #edit-temp-email').val(cookie)
 	
 });
