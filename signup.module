@@ -70,8 +70,6 @@ function signup_data_block_validate($form, &$form_state) {
 
 // Submit block form
 function signup_data_block_submit($form, &$form_state) {
-	$email = $form_state['values']['email'];
-	db_query("INSERT INTO {signup} (mail) VALUES('%s')",$email);
 	drupal_set_message(variable_get('sign_up_update', 'Please provide additional information.'));
 }
 
@@ -84,9 +82,15 @@ function signup_data_form($form_state) {
 		'#type' => 'markup',
 		'#value' => variable_get('sign_up_intro', l('Please configure this message', 'admin/settings/signup-messages', $options = array()))
 	);
-	$form['email'] = array(
+	$form['temp_email'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Email'),
+		'#size' => 40,
+		'#required' => TRUE,
+	);
+	$form['email'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Verify aEmail'),
 		'#size' => 40,
 		'#required' => TRUE,
 	);
