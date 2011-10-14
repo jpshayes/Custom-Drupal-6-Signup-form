@@ -24,7 +24,6 @@ function signup_menu() {
 		'type' => MENU_LOCAL_TASK,
 	);
 	$items['signup/form/callback'] = array(
-		'title' => 'eNews Signup callback',
 		'page callback' => 'signup_form_callback',
 		'access callback' => TRUE,
 		'type' => MENU_CALLBACK,
@@ -81,21 +80,41 @@ function signup_form(&$form_state, $my_values = array()) {
 		'#prefix' => '<div id="form-intro">',
 		'#suffix' => '</div>',
 		'#type' => 'markup',
+		'#weight' => 0,
 		'#value' => variable_get('sign_up_intro', l('Please configure this message', 'admin/settings/signup-messages', $options = array()))
 	);
-	$form['temp_email'] = array(
+	$form['email_address'] = array(
+		'#type' => 'fieldset',
+		'#title' => t(''),
+		'#weight' => 1,
+		'#attributes' => array(
+			'id' => 'email-address'
+		)
+	);
+	$form['email_address']['temp_email'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Email'),
 		'#size' => 40,
 		'#required' => TRUE,
 	);
-	$form['email'] = array(
+	$form['email_address']['email'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Verify Email'),
 		'#size' => 40,
 		'#required' => TRUE,
+		'#attributes' => array(
+			'autocomplete' => 'off'
+		)
 	);
-	$form['salutation'] = array(
+	$form['personal_info'] = array(
+		'#type' => 'fieldset',
+		'#title' => t('Personal Information'),
+		'#weight' => 2,
+		'#attributes' => array(
+			'id' => 'personal-info'
+		)
+	);
+	$form['personal_info']['salutation'] = array(
 		'#type' => 'select',
 		'#title' => t('Salutation'),
 		'#options' => array(
@@ -106,25 +125,39 @@ function signup_form(&$form_state, $my_values = array()) {
 		),
 		'#required' => FALSE,
 	);
-	$form['first'] = array(
+	$form['personal_info']['first'] = array(
 		'#type' => 'textfield',
 		'#title' => t('First Name'),
 		'#size' => 40,
 		'#required' => TRUE,
 	);
-	$form['last'] = array(
+	$form['personal_info']['last'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Last Name'),
 		'#size' => 40,
 		'#required' => TRUS,
 	);
-	$form['title'] = array(
+	$form['personal_info']['phone'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Phone'),
+		'#size' => 40,
+		'#required' => FALSE,
+	);
+	$form['employment'] = array(
+		'#type' => 'fieldset',
+		'#title' => t('Employer Information'),
+		'#weight' => 3,
+		'#attributes' => array(
+			'id' => 'employment'
+		)
+	);
+	$form['employment']['title'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Title'),
 		'#size' => 40,
 		'#required' => FALSE,
 	);
-	$form['employer_type'] = array(
+	$form['employment']['employer_type'] = array(
 		'#type' => 'select',
 		'#title' => t('Employer Type'),
 		'#required' => FALSE,
@@ -142,13 +175,13 @@ function signup_form(&$form_state, $my_values = array()) {
 			'other' => t('Other'),
 		),
 	);
-	$form['employer'] = array(
+	$form['employment']['employer'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Employer'),
 		'#size' => 40,
 		'#required' => FALSE,
 	);
-	$form['role'] = array(
+	$form['employment']['role'] = array(
 		'#type' => 'select',
 		'#title' => t('Role'),
 		'#required' => FALSE,
@@ -167,25 +200,33 @@ function signup_form(&$form_state, $my_values = array()) {
 			'other' => t('Other'),
 		),
 	);
-	$form['address_1'] = array(
+	$form['mailing_address'] = array(
+		'#type' => 'fieldset',
+		'#title' => t('Mailing Address'),
+		'#weight' => 3,
+		'#attributes' => array(
+			'id' => 'mailing-address'
+		)
+	);
+	$form['mailing_address']['address_1'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Address 1'),
 		'#size' => 40,
 		'#required' => FALSE,
 	);
-	$form['address_2'] = array(
+	$form['mailing_address']['address_2'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Address 2'),
 		'#size' => 40,
 		'#required' => FALSE,
 	);
-	$form['city'] = array(
+	$form['mailing_address']['city'] = array(
 		'#type' => 'textfield',
 		'#title' => t('City'),
 		'#size' => 25,
 		'#required' => FALSE,
 	);
-	$form['master_dropdown'] = array(
+	$form['mailing_address']['master_dropdown'] = array(
 		'#type' => 'select',
 		'#title' => 'County',
 		'#options' => $initial_options,
@@ -199,22 +240,22 @@ function signup_form(&$form_state, $my_values = array()) {
 	);
 
 	// The CSS for this module hides this next button if JS is enabled.
-	$form['continue_to_dependent_dropdown'] = array(
+	$form['mailing_address']['continue_to_dependent_dropdown'] = array(
 		'#type' => 'submit',
 		'#value' => t('Choose'),
 		'#attributes' => array('class' => 'next-button'),
 		'#submit' => array('signup_form_continue'),
 	);
 
-	$form['dependent_dropdown_holder'] = array(
+	$form['mailing_address']['dependent_dropdown_holder'] = array(
 		'#tree' => TRUE,
 		'#prefix' => '<div id="dependent-dropdown-wrapper" class="form-item">',
 		'#suffix' => '</div>',
 	);
 
-	$form['dependent_dropdown_holder']['dependent_dropdown'] = array(
+	$form['mailing_address']['dependent_dropdown_holder']['dependent_dropdown'] = array(
 		'#type' => 'select',
-		'#title' => t('State'),
+		'#title' => t('State/Provence'),
 
 		// when the form is rebuilt during processing (either AJAX or multistep),
 		// the $master_selction variable will now have the new value and so the
@@ -222,24 +263,19 @@ function signup_form(&$form_state, $my_values = array()) {
 		'#options' => _signup_get_second_dropdown_options($master_selection),
 		'#default_value' => isset($my_values['dependent_dropdown']) ? $my_values['dependent_dropdown'] : '',
 	);
-	$form['zip_code'] = array(
+	$form['mailing_address']['zip_code'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Zip Code'),
 		'#size' => 10,
 		'#maxlength' => 5,
-		'#required' => FALSE,
+		'#required' => TRUE,
 	);
-	$form['phone'] = array(
-		'#type' => 'textfield',
-		'#title' => t('Phone'),
-		'#size' => 40,
-		'#required' => FALSE,
-	);	
 	$form['submit'] = array(
 		'#prefix' => '<div id="form-actions">',
 		'#suffix' => '</div>',
 		'#type' => 'submit',
 		'#value' => 'Sign Up',
+		'#weight' => 50
 	);
 	// Add basic css file
 	drupal_add_css(drupal_get_path('module','signup') . '/css/signup.css');
@@ -264,7 +300,7 @@ function signup_form(&$form_state, $my_values = array()) {
 function signup_form_callback() {
 	$form = signup_callback_helper();
 
-	$changed_elements = $form['dependent_dropdown_holder'];
+	$changed_elements = $form['mailing_address']['dependent_dropdown_holder'];
 
 	// Prevent duplicate wrappers.
 	unset($changed_elements['#prefix'], $changed_elements['#suffix']);
@@ -289,11 +325,18 @@ function signup_form_continue($form, &$form_state) {
 }
 
 function signup_form_validate($form, &$form_state) {
+	$temp_mail = $form_state['values']['temp_email'];
 	$mail = $form_state['values']['email'];
+	
+	// if ($temp_email !== $mail) {
+	// 	form_set_error('email', t('The specified emails do not match'));
+	// 	// drupal_set_message('<pre>' . print_r($form_state, TRUE) . '</pre>');
+	// }
+	
 	if (!signup_valid_email_address($mail)) {
 		form_set_error('email', t('The email address ' . $mail . ' is not a valid email address.'));
 	}
-	
+		
 	// Validate the phone number provided is at least 5 digits
 	$phone = $form_state['values']['phone'];
 	if( !empty($phone) && !preg_match("^\+?\d{4,}$^", $phone) ) {
@@ -337,6 +380,7 @@ function signup_form_submit($form, &$form_state) {
 			} else {
 				db_query("INSERT INTO {signup} (email1, first_name, last_name, title, employer, address_1, address_2, city, state, zip_code, phone) VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", $email, $fname, $lname, $title, $employer, $address_1, $address_2, $city, $state, $zip_code, $phone);
 				drupal_set_message(t('Thank you for signing up.'));
+				// drupal_set_message('<pre>' . print_r($form_state, TRUE) . '</pre>');
 			}
 	}
 

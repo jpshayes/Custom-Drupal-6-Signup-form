@@ -24,7 +24,7 @@ $(document).ready(function(){
 			email: {
 				required: 'Please provide an email address',
 				email: 'Please provide a valid email address',
-				equalTo: 'The specified email address do not match'
+				equalTo: 'The specified email address do not match the address above'
 			},
 			first: {
 				required: 'Please enter your first name.'
@@ -41,10 +41,8 @@ $(document).ready(function(){
 		},
 		errorPlacement: function(error, element) {
 				$(element).parent().append(error);
-				var w = $(element).width() + 10;
-				var h = ($(element).parent().outerHeight() * 0.5) - 5;
+				var w = $(element).width() + 143;
 				$(error).css('left', w);
-				$(error).css('top', h);
 		}
 	});
 	$('#signup-data-block .form-submit').click(function(){

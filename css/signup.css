@@ -1,9 +1,25 @@
 #signup-form .form-item {
+	clear: left;
+	float: left;
+	margin-bottom: 3px;
+	margin-top: 3px;
 	position: relative;
 }
 
 #signup-form .form-item input {
 	padding: 6px 0 6px 6px;
+}
+
+#signup-form .ahah-progress {
+	float: left;
+}
+
+#signup-form .ahah-progress .throbber {
+	width: 16px;
+	height: 11px;
+	margin: 8px 5px 8px 10px;
+	background: transparent url(../images/loader.gif) no-repeat 0 0;
+	float: left;
 }
 
 #signup-form .form-item input:hover,
@@ -12,9 +28,49 @@
 	background-color: #eee;
 }
 
+#signup-form .form-item label {
+	display: block;
+	width: 135px;
+	float: left;
+}
+
 #signup-form label.error {
-	background: url("../images/error.png") no-repeat scroll 5px center #FFFFFF;
+	background: url("../images/error.png") no-repeat scroll 5px center transparent;
 	color: #222222;
 	padding: 4px 9px 4px 25px;
 	position: absolute;
+	width: auto;
+	float: none;
+	display: inline;
+	white-space: nowrap;
+}
+
+html.js #edit-continue-to-dependent-dropdown {
+	display: none;
+}
+
+#signup-form fieldset {
+	-moz-border-bottom-colors: none;
+	-moz-border-image: none;
+	-moz-border-left-colors: none;
+	-moz-border-right-colors: none;
+	-moz-border-top-colors: none;
+	border-color: #999999;
+	border-style: solid;
+	border-width: 1px 0 0;
+	width: 500px;
+}
+
+#signup-form fieldset#email-address {
+	border: none;
+}
+
+#signup-form fieldset legend {
+	font-size: 1.2em;
+	color: #018EB4;
+	letter-spacing: 1px;
+}
+
+#signup-form #edit-zip-code-wrapper label.error {
+	left: 216px !important;
 }
