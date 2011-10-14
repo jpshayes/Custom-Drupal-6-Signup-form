@@ -82,7 +82,7 @@ function signup_form(&$form_state, $my_values = array()) {
 		'#suffix' => '</div>',
 		'#type' => 'markup',
 		'#weight' => 0,
-		'#value' => variable_get('sign_up_intro', l('Please configure this message', 'admin/settings/signup-messages', $options = array()))
+		'#value' => t('This is the intro message')
 	);
 	$form['email_address'] = array(
 		'#type' => 'fieldset',
@@ -340,26 +340,24 @@ function signup_form_continue($form, &$form_state) {
 function signup_form_validate($form, &$form_state) {
 	$temp_mail = $form_state['values']['temp_email'];
 	$email = $form_state['values']['email'];
-	
-	// if ($temp_email !== $mail) {
-	// 	form_set_error('email', t('The specified emails do not match'));
-	// 	// drupal_set_message('<pre>' . print_r($form_state, TRUE) . '</pre>');
-	// }
-	
+	$sal = $form_state['values']['salutation'];
+	$fname = $form_state['values']['first'];
+	$lname = $form_state['values']['last'];
+	$cc_phone = $form_state['values']['country_phone'];
+	$phone = $form_state['values']['phone'];
+	$title = $form_state['values']['title'];
+	$employer = $form_state['values']['employer'];
+	$employer_type = $form_state['values']['employer_type'];
+	$role = $form_state['values']['role'];
+	$address_1 = $form_state['values']['address_1'];
+	$address_2 = $form_state['values']['address_2'];
+	$city = $form_state['values']['city'];
+	$country = $form_state['values']['master_dropdown'];
+	$state = $form_state['values']['dependant_dropdown'];
+	$zip_code = $form_state['values']['zip_code'];
+		
 	if (!signup_valid_email_address($email)) {
 		form_set_error('email', t('The email address ' . $email . ' is not a valid email address.'));
-	}
-		
-	// Validate the phone number provided is at least 5 digits
-	$phone = $form_state['values']['phone'];
-	if( !empty($phone) && !preg_match("^\+?\d{4,}$^", $phone) ) {
-		form_set_error('phone', (variable_get('sign_up_phone_invalid', 'Please enter a valid Phone Number.')));
-	}
-	
-	// Validate the zip code provided is at least 5 digits
-	$zip_code = $form_state['values']['zip_code'];
-	if( !preg_match("#[0-9]{5}#", $zip_code) ) {
-		form_set_error('zip_code', (variable_get('sign_up_zip_invalid', 'Please enter a valid Zip Code.')));
 	}
 }
 
