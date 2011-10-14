@@ -594,6 +594,7 @@ function _signup_get_second_dropdown_options($key = '') {
 	}
 }
 
+
 // Validation functions
 function signup_valid_email_address($mail) {
 	$user = '[a-zA-Z0-9_\-\.\+\^!#\$%&*+\/\=\?\`\|\{\}~\']+';
