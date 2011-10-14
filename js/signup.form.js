@@ -48,7 +48,7 @@ $(document).ready(function(){
 				$(error).css('left', w);
 		}
 	});
-	$('#signup-data-block .form-submit').click(function(){
+	$('#signup-data-block .form-submit, #signup-form .form-submit').click(function(){
 		var email = $('#edit-email').val()
 		$.cookie('signup', email, { expires: 7, path: '/' });
 	});
