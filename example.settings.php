@@ -88,9 +88,11 @@
  *   $db_url = 'mysqli://username:password@localhost/databasename';
  *   $db_url = 'pgsql://username:password@localhost/databasename';
  */
+//Main Database
 $db_url = 'mysql://username:password@localhost/databasename';
 $db_prefix = array(
   'default' => '',
+//"signup" is the name of the table used to hold the signup.module data and the "signup_databasename" is the name of the signup database
   'signup' => 'signup_databasename.'
 );
 /**
