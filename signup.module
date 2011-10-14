@@ -142,26 +142,16 @@ function signup_form(&$form_state, $my_values = array()) {
 	$form['personal_info']['country_phone'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Phone'),
-		'#size' => 3,
+		'#size' => 6,
 		'#default_value' => '1',
+		'#maxlength' => 3,
 		'#required' => FALSE,
-	);
-	$form['personal_info']['area_phone'] = array(
-		'#type' => 'textfield',
-		'#title' => t(''),
-		'#size' => 3,
-		'#required' => FALSE,
-	);
-	$form['personal_info']['prefix_phone'] = array(
-		'#type' => 'textfield',
-		'#title' => t(''),
-		'#size' => 3,
-		'#required' => FALSE,
+		'#description' => t('country code')
 	);
 	$form['personal_info']['phone'] = array(
 		'#type' => 'textfield',
 		'#title' => t(''),
-		'#size' => 4,
+		'#size' => 27,
 		'#required' => FALSE,
 	);
 	$form['employment'] = array(
@@ -175,6 +165,12 @@ function signup_form(&$form_state, $my_values = array()) {
 	$form['employment']['title'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Title'),
+		'#size' => 40,
+		'#required' => FALSE,
+	);
+	$form['employment']['employer'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Employer'),
 		'#size' => 40,
 		'#required' => FALSE,
 	);
@@ -196,12 +192,6 @@ function signup_form(&$form_state, $my_values = array()) {
 			'self_employed' => t('Self-Employed'),
 			'other' => t('Other'),
 		),
-	);
-	$form['employment']['employer'] = array(
-		'#type' => 'textfield',
-		'#title' => t('Employer'),
-		'#size' => 40,
-		'#required' => FALSE,
 	);
 	$form['employment']['role'] = array(
 		'#type' => 'select',
@@ -349,15 +339,15 @@ function signup_form_continue($form, &$form_state) {
 
 function signup_form_validate($form, &$form_state) {
 	$temp_mail = $form_state['values']['temp_email'];
-	$mail = $form_state['values']['email'];
+	$email = $form_state['values']['email'];
 	
 	// if ($temp_email !== $mail) {
 	// 	form_set_error('email', t('The specified emails do not match'));
 	// 	// drupal_set_message('<pre>' . print_r($form_state, TRUE) . '</pre>');
 	// }
 	
-	if (!signup_valid_email_address($mail)) {
-		form_set_error('email', t('The email address ' . $mail . ' is not a valid email address.'));
+	if (!signup_valid_email_address($email)) {
+		form_set_error('email', t('The email address ' . $email . ' is not a valid email address.'));
 	}
 		
 	// Validate the phone number provided is at least 5 digits
@@ -387,8 +377,11 @@ function signup_form_submit($form, &$form_state) {
 	if ($form_state['clicked_button']['#id'] == 'edit-submit') {
 			$form_state['rebuild'] = FALSE;
 			$email = $form_state['values']['email'];
+			$sal = $form_state['values']['salutation'];
 			$fname = $form_state['values']['first'];
 			$lname = $form_state['values']['last'];
+			$cc_phone = $form_state['values']['country_phone'];
+			
 			$title = $form_state['values']['title'];
 			$employer = $form_state['values']['employer'];
 			$address_1 = $form_state['values']['address_1'];

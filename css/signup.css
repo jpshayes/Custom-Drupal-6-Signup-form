@@ -74,21 +74,24 @@ html.js #edit-continue-to-dependent-dropdown {
 	letter-spacing: 1px;
 }
 
-#signup-form #edit-area-phone-wrapper,
-#signup-form #edit-prefix-phone-wrapper,
-#signup-form #edit-phone-wrapper {
+#signup-form #edit-country-phone-wrapper {
 	float: left;
-	display: inline;
-	clear: none;
-	margin-left: 3px;
-}
-
-#signup-form #edit-area-phone-wrapper input,
-#signup-form #edit-prefix-phone-wrapper input,
-#signup-form #edit-phone-wrapper input {
-	text-align: center;
 }
 
 #signup-form #edit-country-phone {
 	text-align: right;
+}
+
+#signup-form #edit-phone-wrapper {
+	clear: none;
+	float: left;
+	margin-left: 10px;
+}
+
+#signup-form #edit-phone {
+	text-align: left;
+}
+
+#signup-form #edit-country-phone-wrapper .description {
+	margin-left: 135px;
 }
