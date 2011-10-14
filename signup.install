@@ -11,9 +11,16 @@ function signup_schema() {
 				'unsigned' => TRUE,
 				'not null' => TRUE
 			),
-			'sal' => array(
+			'email1' => array(
 				'type' => 'varchar',
 				'length' => 64,
+				'not null' => FALSE,
+				'default' => '',
+				'description' => "Email address.",
+			),
+			'sal' => array(
+				'type' => 'varchar',
+				'length' => 20,
 				'not null' => FALSE,
 				'default' => '',
 				'description' => "Salutation",
@@ -32,9 +39,9 @@ function signup_schema() {
 				'default' => '',
 				'description' => 'Last name.',
 			),
-			'email1' => array(
+			'phone' => array(
 				'type' => 'varchar',
-				'length' => 64,
+				'length' => 25,
 				'not null' => FALSE,
 				'default' => '',
 				'description' => "Email address.",
@@ -52,6 +59,20 @@ function signup_schema() {
 				'not null' => TRUE,
 				'default' => '',
 				'description' => "Employer.",
+			),
+			'employer_type' => array(
+				'type' => 'varchar',
+				'length' => 255,
+				'not null' => TRUE,
+				'default' => '',
+				'description' => "Employer Type.",
+			),
+			'role' => array(
+				'type' => 'varchar',
+				'length' => 255,
+				'not null' => TRUE,
+				'default' => '',
+				'description' => "Role.",
 			),
 			'address_1' => array(
 				'type' => 'varchar',
@@ -79,7 +100,14 @@ function signup_schema() {
 				'length' => 60,
 				'not null' => TRUE,
 				'default' => '',
-				'description' => 'State.',
+				'description' => 'State / Provence.',
+			),
+			'country' => array(
+				'type' => 'varchar',
+				'length' => 60,
+				'not null' => TRUE,
+				'default' => '',
+				'description' => 'Country.',
 			),
 			'zip_code' => array(
 				'type' => 'varchar',
@@ -87,13 +115,6 @@ function signup_schema() {
 				'not null' => TRUE,
 				'default' => '',
 				'description' => 'Zip Code.',
-			),
-			'phone' => array(
-				'type' => 'varchar',
-				'length' => 255,
-				'not null' => TRUE,
-				'default' => '',
-				'description' => 'Phone Number.',
 			),
 		),
 		'unique keys' => array(
