@@ -75,7 +75,7 @@ function signup_form(&$form_state, $my_values = array()) {
 	// this both as the default value for the first dropdown and also as a
 	// parameter to pass to the function that retrieves the options for the
 	// second dropdown.
-	$master_selection = !empty($form_state['values']['master_dropdown']) ? $form_state['values']['master_dropdown'] : t('US');
+	$master_selection = !empty($form_state['values']['master_dropdown']) ? $form_state['values']['master_dropdown'] : t('- select -');
 
 	$form['intro'] = array(
 		'#prefix' => '<div id="form-intro">',
@@ -180,17 +180,17 @@ function signup_form(&$form_state, $my_values = array()) {
 		'#required' => FALSE,
 		'#options' => array(
 			'select' => '- select -',
-			'school_district_office' => t('School District Office'),
-			'pre_K_12_School' => t('Pre K-12 School'),
-			'university' => t('University'),
-			'state_agency' => t('State Agency'),
-			'federal_government' => t('Federal Government'),
-			'pre_K_12_School' => t('Pre K-12 School'),
-			'foundation' => t('Foundation'),
-			'non_profit_organization' => t('Non-Profit organization'),
-			'business' => t('Business'),
-			'self_employed' => t('Self-Employed'),
-			'other' => t('Other'),
+			'School District Office' => t('School District Office'),
+			'Pre K-12 School' => t('Pre K-12 School'),
+			'University' => t('University'),
+			'State Agency' => t('State Agency'),
+			'Federal Government' => t('Federal Government'),
+			'Pre K-12 School' => t('Pre K-12 School'),
+			'Foundation' => t('Foundation'),
+			'Non-Profit Organization' => t('Non-Profit Organization'),
+			'Business' => t('Business'),
+			'Self-Employed' => t('Self-Employed'),
+			'Other' => t('Other'),
 		),
 	);
 	$form['employment']['role'] = array(
@@ -199,18 +199,18 @@ function signup_form(&$form_state, $my_values = array()) {
 		'#required' => FALSE,
 		'#options' => array(
 			'select' => '- select -',
-			'policy_maker' => t('Policy Maker'),
-			'school_leader' => t('School Leader'),
-			'induction_leader' => t('Induction Leader'),
-			'beginning_teacher' => t('Beginning Teacher'),
-			'mentor_teacher' => t('Mentor Teacher'),
-			'pre_k_12_teacher' => t('Pre K-12 Teacher'),
-			'union_leader' => t('Union Leader'),
-			'central_office_administrator_coordinator' => t('Central Office Administrator / Coordinator'),
-			'university_faculty_supervisor' => t('University Faculty / Supervisor'),
-			'professional_developer' => t('Professional Developer'),
-			'researcher' => t('Researcher'),
-			'other' => t('Other'),
+			'Policy Maker' => t('Policy Maker'),
+			'School Leader' => t('School Leader'),
+			'Induction Leader' => t('Induction Leader'),
+			'Beginning Teacher' => t('Beginning Teacher'),
+			'Mentor Teacher' => t('Mentor Teacher'),
+			'Pre K-12 Teacher' => t('Pre K-12 Teacher'),
+			'Union Leader' => t('Union Leader'),
+			'Central Office Administrator / Coordinator' => t('Central Office Administrator / Coordinator'),
+			'University Faculty / Supervisor' => t('University Faculty / Supervisor'),
+			'Professional Developer' => t('Professional Developer'),
+			'Researcher' => t('Researcher'),
+			'Other' => t('Other'),
 		),
 	);
 	$form['mailing_address'] = array(
@@ -374,23 +374,52 @@ function signup_form_submit($form, &$form_state) {
 
 	if ($form_state['clicked_button']['#id'] == 'edit-submit') {
 			$form_state['rebuild'] = FALSE;
-			$email = $form_state['values']['email'];
-			$sal = $form_state['values']['salutation'];
-			$fname = $form_state['values']['first'];
-			$lname = $form_state['values']['last'];
-			$cc_phone = $form_state['values']['country_phone'];
-			$temp_phone = $form_state['values']['phone'];
+			$email = trim($form_state['values']['email']);
+			
+			if ($form_state['values']['salutation'] == 'select') {
+				$sal = NULL;
+			} else {
+				$sal = $form_state['values']['salutation'];
+			}
+			
+			$fname = trim($form_state['values']['first']);
+			$lname = trim($form_state['values']['last']);
+			$cc_phone = trim($form_state['values']['country_phone']);
+			$temp_phone = trim($form_state['values']['phone']);
 			$phone = $cc_phone . '-' . $temp_phone;
-			$title = $form_state['values']['title'];
-			$employer = $form_state['values']['employer'];
+			$title = trim($form_state['values']['title']);
+			$employer = trim($form_state['values']['employer']);
 			$employer_type = $form_state['values']['employer_type'];
-			$role = $form_state['values']['role'];
-			$address_1 = $form_state['values']['address_1'];
-			$address_2 = $form_state['values']['address_2'];
-			$city = $form_state['values']['city'];
-			$country = $form_state['values']['master_dropdown'];
-			$state = $form_state['values']['dependent_dropdown_holder']['dependent_dropdown'];
-			$zip_code = $form_state['values']['zip_code'];
+			
+			if ($form_state['values']['employer_type'] == 'select') {
+				$employer_type = NULL;
+			} else {
+				$employer_type = $form_state['values']['employer_type'];
+			}
+			
+			if ($form_state['values']['role'] == 'select') {
+				$role = NULL;
+			} else {
+				$role = $form_state['values']['role'];
+			}
+			
+			$address_1 = trim($form_state['values']['address_1']);
+			$address_2 = trim($form_state['values']['address_2']);
+			$city = trim($form_state['values']['city']);
+			
+			if ($form_state['values']['master_dropdown'] == '- select -') {
+				$country = NULL;
+			} else {
+				$country = $form_state['values']['master_dropdown'];
+			}
+			
+			if ($form_state['values']['dependent_dropdown_holder']['dependent_dropdown'] == '- select -') {
+				$state = NULL;
+			} else {
+				$state = $form_state['values']['dependent_dropdown_holder']['dependent_dropdown'];
+			}
+			
+			$zip_code = trim($form_state['values']['zip_code']);
 			if (db_result(db_query("SELECT COUNT(*) FROM {signup} WHERE LOWER(email1) = LOWER('%s')", $email)) > 0) {
 				db_query("UPDATE {signup} SET sal = '%s', first_name = '%s', last_name = '%s', phone = '%s', title = '%s', employer = '%s', employer_type = '%s', role = '%s', address_1 = '%s', address_1 = '%s', city = '%s', state = '%s', country = '%s', zip_code = '%s' WHERE email1 = '%s'", $sal, $fname, $lname, $phone, $title, $employer, $employer_type, $role, $address_1, $address_2, $city, $state, $country, $zip_code, $email);
 				drupal_set_message(t('Thank you, your information has been updated.'));
@@ -469,7 +498,7 @@ function signup_data_block_submit($form, &$form_state) {
  */
 function _signup_get_first_dropdown_options() {
 	// drupal_map_assoc() just makes an array('Strings' => 'Strings'...).
-	return drupal_map_assoc(array(t('US'), t('Canada')));
+	return drupal_map_assoc(array(t('- select -'), t('US'), t('Canada')));
 }
 
 /**
@@ -482,6 +511,9 @@ function _signup_get_first_dropdown_options() {
  */
 function _signup_get_second_dropdown_options($key = '') {
 	$options = array(
+		t('- select -') => drupal_map_assoc(array(
+			t('- select -')
+		)),
 		t('US') => drupal_map_assoc(array(
 			t('- select -'),
 			t('Alabama'),
