@@ -241,7 +241,7 @@ function signup_form(&$form_state, $my_values = array()) {
 	);
 	$form['mailing_address']['master_dropdown'] = array(
 		'#type' => 'select',
-		'#title' => 'County',
+		'#title' => 'Country',
 		'#options' => $initial_options,
 		'#default_value' => $master_selection,
 		'#ahah' => array(
@@ -381,15 +381,17 @@ function signup_form_submit($form, &$form_state) {
 			$fname = $form_state['values']['first'];
 			$lname = $form_state['values']['last'];
 			$cc_phone = $form_state['values']['country_phone'];
-			
+			$phone = $form_state['values']['phone'];
 			$title = $form_state['values']['title'];
 			$employer = $form_state['values']['employer'];
+			$employer_type = $form_state['values']['employer_type'];
+			$role = $form_state['values']['role'];
 			$address_1 = $form_state['values']['address_1'];
 			$address_2 = $form_state['values']['address_2'];
 			$city = $form_state['values']['city'];
-			$state = $form_state['values']['state'];
+			$country = $form_state['values']['master_dropdown'];
+			$state = $form_state['values']['dependant_dropdown'];
 			$zip_code = $form_state['values']['zip_code'];
-			$phone = $form_state['values']['phone'];
 			if (db_result(db_query("SELECT COUNT(*) FROM {signup} WHERE LOWER(email1) = LOWER('%s')", $email)) > 0) {
 				db_query("UPDATE {signup} SET first_name = '%s', last_name = '%s', title = '%s', employer = '%s', address_1 = '%s', address_2 = '%s', city = '%s', state = '%s', zip_code = '%s', phone = '%s' WHERE email1 = '%s'", $fname, $lname, $title, $employer, $address_1, $address_2, $city, $state, $zip_code, $phone, $email);
 				drupal_set_message(t('Thank you, your information has been updated.'));
