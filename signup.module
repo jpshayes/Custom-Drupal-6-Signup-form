@@ -137,7 +137,7 @@ function signup_form(&$form_state, $my_values = array()) {
 		'#type' => 'textfield',
 		'#title' => t('Last Name'),
 		'#size' => 40,
-		'#required' => TRUS,
+		'#required' => TRUE,
 	);
 	$form['personal_info']['country_phone'] = array(
 		'#type' => 'textfield',
