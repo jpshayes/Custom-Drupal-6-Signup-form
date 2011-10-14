@@ -14,6 +14,9 @@ $(document).ready(function(){
 				email: true,
 				equalTo: "#edit-temp-email"
 			},
+			phone: {
+				digits: true
+			},
 			zip_code: {
 				required: true,
 				digits: true,

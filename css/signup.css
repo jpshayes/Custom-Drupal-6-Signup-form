@@ -48,6 +48,10 @@
 	line-height: 1.75em;
 }
 
+#signup-form #edit-phone-wrapper label.error {
+	left: 193px !important;
+}
+
 html.js #edit-continue-to-dependent-dropdown {
 	display: none;
 }
@@ -62,6 +66,8 @@ html.js #edit-continue-to-dependent-dropdown {
 	border-style: solid;
 	border-width: 1px 0 0;
 	width: 500px;
+	padding: 10px 0 0;
+	margin: 0 0 20px;
 }
 
 #signup-form fieldset#email-address {

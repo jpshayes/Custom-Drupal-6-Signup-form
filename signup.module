@@ -379,7 +379,8 @@ function signup_form_submit($form, &$form_state) {
 			$fname = $form_state['values']['first'];
 			$lname = $form_state['values']['last'];
 			$cc_phone = $form_state['values']['country_phone'];
-			$phone = $form_state['values']['phone'];
+			$temp_phone = $form_state['values']['phone'];
+			$phone = $cc_phone . '-' . $temp_phone;
 			$title = $form_state['values']['title'];
 			$employer = $form_state['values']['employer'];
 			$employer_type = $form_state['values']['employer_type'];
@@ -388,13 +389,14 @@ function signup_form_submit($form, &$form_state) {
 			$address_2 = $form_state['values']['address_2'];
 			$city = $form_state['values']['city'];
 			$country = $form_state['values']['master_dropdown'];
-			$state = $form_state['values']['dependant_dropdown'];
+			$state = $form_state['values']['dependent_dropdown_holder']['dependent_dropdown'];
 			$zip_code = $form_state['values']['zip_code'];
 			if (db_result(db_query("SELECT COUNT(*) FROM {signup} WHERE LOWER(email1) = LOWER('%s')", $email)) > 0) {
 				db_query("UPDATE {signup} SET sal = '%s', first_name = '%s', last_name = '%s', phone = '%s', title = '%s', employer = '%s', employer_type = '%s', role = '%s', address_1 = '%s', address_1 = '%s', city = '%s', state = '%s', country = '%s', zip_code = '%s' WHERE email1 = '%s'", $sal, $fname, $lname, $phone, $title, $employer, $employer_type, $role, $address_1, $address_2, $city, $state, $country, $zip_code, $email);
 				drupal_set_message(t('Thank you, your information has been updated.'));
+				// drupal_set_message('<pre>' . print_r($form_state, TRUE) . '</pre>');
 			} else {
-				db_query("INSERT INTO {signup} (email1, first_name, last_name, title, employer, address_1, address_2, city, state, zip_code, phone) VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", $email, $fname, $lname, $title, $employer, $address_1, $address_2, $city, $state, $zip_code, $phone);
+				db_query("INSERT INTO {signup} (email1, sal, first_name, last_name, phone, title, employer, employer_type, role, address_1, address_2, city, state, country, zip_code) VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", $email, $sal, $fname, $lname, $phone, $title, $employer, $employer_type, $role, $address_1, $address_2, $city, $state, $country, $zip_code);
 				drupal_set_message(t('Thank you for signing up.'));
 				// drupal_set_message('<pre>' . print_r($form_state, TRUE) . '</pre>');
 			}
