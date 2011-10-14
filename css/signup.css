@@ -7,7 +7,7 @@
 }
 
 #signup-form .form-item input {
-	padding: 6px 0 6px 6px;
+	padding: 6px;
 }
 
 #signup-form .ahah-progress {
@@ -32,6 +32,7 @@
 	display: block;
 	width: 135px;
 	float: left;
+	line-height: 2.4em;
 }
 
 #signup-form label.error {
@@ -43,6 +44,8 @@
 	float: none;
 	display: inline;
 	white-space: nowrap;
+	top: 0;
+	line-height: 1.75em;
 }
 
 html.js #edit-continue-to-dependent-dropdown {
@@ -71,6 +74,21 @@ html.js #edit-continue-to-dependent-dropdown {
 	letter-spacing: 1px;
 }
 
-#signup-form #edit-zip-code-wrapper label.error {
-	left: 216px !important;
+#signup-form #edit-area-phone-wrapper,
+#signup-form #edit-prefix-phone-wrapper,
+#signup-form #edit-phone-wrapper {
+	float: left;
+	display: inline;
+	clear: none;
+	margin-left: 3px;
+}
+
+#signup-form #edit-area-phone-wrapper input,
+#signup-form #edit-prefix-phone-wrapper input,
+#signup-form #edit-phone-wrapper input {
+	text-align: center;
+}
+
+#signup-form #edit-country-phone {
+	text-align: right;
 }

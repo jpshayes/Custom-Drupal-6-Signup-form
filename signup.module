@@ -21,9 +21,10 @@ function signup_menu() {
 		'page callback' => 'drupal_get_form',
 		'page arguments' => array('signup_form'),
 		'access callback' => TRUE,
-		'type' => MENU_LOCAL_TASK,
+		'type' => MENU_CALLBACK,
 	);
 	$items['signup/form/callback'] = array(
+		'title' => 'eNews Signup',
 		'page callback' => 'signup_form_callback',
 		'access callback' => TRUE,
 		'type' => MENU_CALLBACK,
@@ -118,6 +119,7 @@ function signup_form(&$form_state, $my_values = array()) {
 		'#type' => 'select',
 		'#title' => t('Salutation'),
 		'#options' => array(
+			'select' => '- select -',
 			'Dr.' => t('Dr.'),
 			'Mr.' => t('Mr.'),
 			'Mrs.' => t('Mrs.'),
@@ -137,10 +139,29 @@ function signup_form(&$form_state, $my_values = array()) {
 		'#size' => 40,
 		'#required' => TRUS,
 	);
-	$form['personal_info']['phone'] = array(
+	$form['personal_info']['country_phone'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Phone'),
-		'#size' => 40,
+		'#size' => 3,
+		'#default_value' => '1',
+		'#required' => FALSE,
+	);
+	$form['personal_info']['area_phone'] = array(
+		'#type' => 'textfield',
+		'#title' => t(''),
+		'#size' => 3,
+		'#required' => FALSE,
+	);
+	$form['personal_info']['prefix_phone'] = array(
+		'#type' => 'textfield',
+		'#title' => t(''),
+		'#size' => 3,
+		'#required' => FALSE,
+	);
+	$form['personal_info']['phone'] = array(
+		'#type' => 'textfield',
+		'#title' => t(''),
+		'#size' => 4,
 		'#required' => FALSE,
 	);
 	$form['employment'] = array(
@@ -162,6 +183,7 @@ function signup_form(&$form_state, $my_values = array()) {
 		'#title' => t('Employer Type'),
 		'#required' => FALSE,
 		'#options' => array(
+			'select' => '- select -',
 			'school_district_office' => t('School District Office'),
 			'pre_K_12_School' => t('Pre K-12 School'),
 			'university' => t('University'),
@@ -186,6 +208,7 @@ function signup_form(&$form_state, $my_values = array()) {
 		'#title' => t('Role'),
 		'#required' => FALSE,
 		'#options' => array(
+			'select' => '- select -',
 			'policy_maker' => t('Policy Maker'),
 			'school_leader' => t('School Leader'),
 			'induction_leader' => t('Induction Leader'),
@@ -465,6 +488,7 @@ function _signup_get_first_dropdown_options() {
 function _signup_get_second_dropdown_options($key = '') {
 	$options = array(
 		t('US') => drupal_map_assoc(array(
+			t('- select -'),
 			t('Alabama'),
 			t('Alaska'),
 			t('American Samoa'),
@@ -523,6 +547,7 @@ function _signup_get_second_dropdown_options($key = '') {
 			t('Wyoming')
 		)),
 		t('Canada') => drupal_map_assoc(array(
+			t('- select -'),
 			t('Alberta'),
 			t('British Columbia'),
 			t('New Brunswick'),

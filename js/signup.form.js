@@ -41,7 +41,7 @@ $(document).ready(function(){
 		},
 		errorPlacement: function(error, element) {
 				$(element).parent().append(error);
-				var w = $(element).width() + 143;
+				var w = $(element).width() + 147;
 				$(error).css('left', w);
 		}
 	});
