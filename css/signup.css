@@ -101,3 +101,18 @@ html.js #edit-continue-to-dependent-dropdown {
 #signup-form #edit-country-phone-wrapper .description {
 	margin-left: 135px;
 }
+
+#signup-form #address-type label {
+	width: 100%;
+}
+
+#signup-form #address-type label.option {
+	width: 100px;
+	margin: 0 30p;
+}
+
+#signup-form #edit-address-type-0-wrapper,
+#signup-form #edit-address-type-1-wrapper {
+	float: left;
+	clear: none;
+}

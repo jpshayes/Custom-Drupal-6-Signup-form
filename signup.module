@@ -222,6 +222,18 @@ function signup_form(&$form_state, $my_values = array()) {
 			'id' => 'mailing-address'
 		)
 	);
+	$form['mailing_address']['address_type'] = array(
+		'#prefix' => '<div id="address-type">',
+		'#suffix' => '</div>',
+		'#type' => 'radios',
+		'#title' => t('Address Type'),
+		'#required' => FALSE,
+		'#default_value' => 0,
+		'#options' => array(
+				t('Office'),
+				t('Home'),
+		)
+	);
 	$form['mailing_address']['address_1'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Address 1'),

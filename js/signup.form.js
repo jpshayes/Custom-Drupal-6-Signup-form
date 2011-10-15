@@ -45,11 +45,12 @@ $(document).ready(function(){
 				$(error).css('left', w);
 		}
 	});
-	$('#signup-data-block .form-submit, #signup-form .form-submit').click(function(){
+	$('#signup-data-block, #signup-form').submit(function(){
 		var email = $('#edit-email').val()
 		$.cookie('signup', email, { expires: 7, path: '/' });
 	});
 	var cookie = $.cookie('signup');
-	$('#signup-form #edit-temp-email').val(cookie)
+	$('#signup-form #edit-temp-email').val(cookie);
+	// alert(cookie)
 	
 });
