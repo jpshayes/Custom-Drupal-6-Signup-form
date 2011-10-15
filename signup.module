@@ -122,8 +122,9 @@ function signup_form(&$form_state, $my_values = array()) {
 			'select' => '- select -',
 			'Dr.' => t('Dr.'),
 			'Mr.' => t('Mr.'),
-			'Mrs.' => t('Mrs.'),
 			'Ms.' => t('Ms.'),
+			'Miss' => t('Miss'),
+			'Mrs.' => t('Mrs.')
 		),
 		'#required' => FALSE,
 	);
@@ -374,7 +375,7 @@ function signup_form_submit($form, &$form_state) {
 
 	if ($form_state['clicked_button']['#id'] == 'edit-submit') {
 			$form_state['rebuild'] = FALSE;
-			$email = trim($form_state['values']['email']);
+			$email = signup_trim($form_state['values']['email']);
 			
 			if ($form_state['values']['salutation'] == 'select') {
 				$sal = NULL;
@@ -382,13 +383,13 @@ function signup_form_submit($form, &$form_state) {
 				$sal = $form_state['values']['salutation'];
 			}
 			
-			$fname = trim($form_state['values']['first']);
-			$lname = trim($form_state['values']['last']);
-			$cc_phone = trim($form_state['values']['country_phone']);
-			$temp_phone = trim($form_state['values']['phone']);
+			$fname = signup_trim($form_state['values']['first']);
+			$lname = signup_trim($form_state['values']['last']);
+			$cc_phone = signup_trim($form_state['values']['country_phone']);
+			$temp_phone = signup_trim($form_state['values']['phone']);
 			$phone = $cc_phone . '-' . $temp_phone;
-			$title = trim($form_state['values']['title']);
-			$employer = trim($form_state['values']['employer']);
+			$title = signup_trim($form_state['values']['title']);
+			$employer = signup_trim($form_state['values']['employer']);
 			$employer_type = $form_state['values']['employer_type'];
 			
 			if ($form_state['values']['employer_type'] == 'select') {
@@ -403,9 +404,9 @@ function signup_form_submit($form, &$form_state) {
 				$role = $form_state['values']['role'];
 			}
 			
-			$address_1 = trim($form_state['values']['address_1']);
-			$address_2 = trim($form_state['values']['address_2']);
-			$city = trim($form_state['values']['city']);
+			$address_1 = signup_trim($form_state['values']['address_1']);
+			$address_2 = signup_trim($form_state['values']['address_2']);
+			$city = signup_trim($form_state['values']['city']);
 			
 			if ($form_state['values']['master_dropdown'] == '- select -') {
 				$country = NULL;
@@ -419,7 +420,7 @@ function signup_form_submit($form, &$form_state) {
 				$state = $form_state['values']['dependent_dropdown_holder']['dependent_dropdown'];
 			}
 			
-			$zip_code = trim($form_state['values']['zip_code']);
+			$zip_code = signup_trim($form_state['values']['zip_code']);
 			if (db_result(db_query("SELECT COUNT(*) FROM {signup} WHERE LOWER(email1) = LOWER('%s')", $email)) > 0) {
 				db_query("UPDATE {signup} SET sal = '%s', first_name = '%s', last_name = '%s', phone = '%s', title = '%s', employer = '%s', employer_type = '%s', role = '%s', address_1 = '%s', address_1 = '%s', city = '%s', state = '%s', country = '%s', zip_code = '%s' WHERE email1 = '%s'", $sal, $fname, $lname, $phone, $title, $employer, $employer_type, $role, $address_1, $address_2, $city, $state, $country, $zip_code, $email);
 				drupal_set_message(t('Thank you, your information has been updated.'));
@@ -594,6 +595,13 @@ function _signup_get_second_dropdown_options($key = '') {
 	}
 }
 
+
+//function used to trim whitespace and remove non-pritable characters
+function signup_trim($string) {
+	$trimmed_string = trim($string);
+	$val = preg_replace( '/[^[:print:]]/', '', $trimmed_string );
+	return $val;
+}
 
 // Validation functions
 function signup_valid_email_address($mail) {
