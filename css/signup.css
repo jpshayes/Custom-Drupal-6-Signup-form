@@ -102,8 +102,12 @@ html.js #edit-continue-to-dependent-dropdown {
 	margin-left: 135px;
 }
 
+#signup-form #address-type  .form-radios {
+	float: left;
+	margin: 0;
+}
+
 #signup-form #address-type label {
-	width: 100%;
 }
 
 #signup-form #address-type label.option {

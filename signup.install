@@ -74,6 +74,13 @@ function signup_schema() {
 				'default' => NULL,
 				'description' => "Role.",
 			),
+			'address_type' => array(
+				'type' => 'varchar',
+				'length' => 20,
+				'not null' => FALSE,
+				'default' => NULL,
+				'description' => 'Address Type.',
+			),
 			'address_1' => array(
 				'type' => 'varchar',
 				'length' => 255,

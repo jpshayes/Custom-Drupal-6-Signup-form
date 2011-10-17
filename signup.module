@@ -16,8 +16,8 @@ function signup_perm() {
  */
 function signup_menu() {
 	$items = array();
-	$items['signup/form'] = array(
-		'title' => 'eNews Signup',
+	$items['signup/ereflections'] = array(
+		'title' => 'eReflections Signup',
 		'page callback' => 'drupal_get_form',
 		'page arguments' => array('signup_form'),
 		'access callback' => TRUE,
@@ -234,6 +234,18 @@ function signup_form(&$form_state, $my_values = array()) {
 				t('Home'),
 		)
 	);
+	$form['mailing_address']['master_dropdown'] = array(
+		'#type' => 'select',
+		'#title' => 'Country',
+		'#options' => $initial_options,
+		'#default_value' => $master_selection,
+		'#ahah' => array(
+			'path' => 'signup/form/callback',
+			'wrapper' => 'dependent-dropdown-wrapper',
+			// 'event' => 'change', // default value: does not need to be set explicitly.
+		),
+		'#attributes' => array('class' => 'master-dropdown'),
+	);
 	$form['mailing_address']['address_1'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Address 1'),
@@ -252,19 +264,6 @@ function signup_form(&$form_state, $my_values = array()) {
 		'#size' => 25,
 		'#required' => FALSE,
 	);
-	$form['mailing_address']['master_dropdown'] = array(
-		'#type' => 'select',
-		'#title' => 'Country',
-		'#options' => $initial_options,
-		'#default_value' => $master_selection,
-		'#ahah' => array(
-			'path' => 'signup/form/callback',
-			'wrapper' => 'dependent-dropdown-wrapper',
-			// 'event' => 'change', // default value: does not need to be set explicitly.
-		),
-		'#attributes' => array('class' => 'master-dropdown'),
-	);
-
 	// The CSS for this module hides this next button if JS is enabled.
 	$form['mailing_address']['continue_to_dependent_dropdown'] = array(
 		'#type' => 'submit',
@@ -420,6 +419,12 @@ function signup_form_submit($form, &$form_state) {
 			$address_2 = signup_trim($form_state['values']['address_2']);
 			$city = signup_trim($form_state['values']['city']);
 			
+			if (empty($address_1)) {
+				$address_type = NULL;
+			} else {
+				$address_type = $form_state['values']['address_type'];
+			}
+			
 			if ($form_state['values']['master_dropdown'] == '- select -') {
 				$country = NULL;
 			} else {
@@ -434,13 +439,13 @@ function signup_form_submit($form, &$form_state) {
 			
 			$zip_code = signup_trim($form_state['values']['zip_code']);
 			if (db_result(db_query("SELECT COUNT(*) FROM {signup} WHERE LOWER(email1) = LOWER('%s')", $email)) > 0) {
-				db_query("UPDATE {signup} SET sal = '%s', first_name = '%s', last_name = '%s', phone = '%s', title = '%s', employer = '%s', employer_type = '%s', role = '%s', address_1 = '%s', address_1 = '%s', city = '%s', state = '%s', country = '%s', zip_code = '%s' WHERE email1 = '%s'", $sal, $fname, $lname, $phone, $title, $employer, $employer_type, $role, $address_1, $address_2, $city, $state, $country, $zip_code, $email);
+				db_query("UPDATE {signup} SET sal = '%s', first_name = '%s', last_name = '%s', phone = '%s', title = '%s', employer = '%s', employer_type = '%s', role = '%s', address_type = '%s', address_1 = '%s', address_1 = '%s', city = '%s', state = '%s', country = '%s', zip_code = '%s' WHERE email1 = '%s'", $sal, $fname, $lname, $phone, $title, $employer, $employer_type, $role, $address_type, $address_1, $address_2, $city, $state, $country, $zip_code, $email);
 				drupal_set_message(t('Thank you, your information has been updated.'));
-				// drupal_set_message('<pre>' . print_r($form_state, TRUE) . '</pre>');
+				drupal_set_message('<pre>' . print_r($address_type, TRUE) . '</pre>');
 			} else {
-				db_query("INSERT INTO {signup} (email1, sal, first_name, last_name, phone, title, employer, employer_type, role, address_1, address_2, city, state, country, zip_code) VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", $email, $sal, $fname, $lname, $phone, $title, $employer, $employer_type, $role, $address_1, $address_2, $city, $state, $country, $zip_code);
+				db_query("INSERT INTO {signup} (email1, sal, first_name, last_name, phone, title, employer, employer_type, role, address_1, address_2, city, state, country, zip_code) VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", $email, $sal, $fname, $lname, $phone, $title, $employer, $employer_type, $role, $address_type, $address_1, $address_2, $city, $state, $country, $zip_code);
 				drupal_set_message(t('Thank you for signing up.'));
-				// drupal_set_message('<pre>' . print_r($form_state, TRUE) . '</pre>');
+				drupal_set_message('<pre>' . print_r($address_type, TRUE) . '</pre>');
 			}
 	}
 
@@ -486,7 +491,7 @@ function signup_data_block($form_state) {
 		'#type' => 'submit',
 		'#value' => 'Sign Up'
 	);
-	$form['#redirect'] = 'signup/form';
+	$form['#redirect'] = 'signup/ereflections';
 	return $form;
 }
 
