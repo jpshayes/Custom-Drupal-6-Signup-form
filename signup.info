@@ -1,5 +1,5 @@
 
-name = eNews Signup
-description = Allow users to signup to the eNewsletter.
+name = eReflections Signup
+description = Allow users to signup to the eReflections newsletter.
 core = 6.x
 package = Hayes
